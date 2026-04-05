@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vintage Social Counter</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --panel-bg: #f5f2ea;
+        --window-bg: #111111;
+        --digit-color: #f2ead2;
+        --frame-color: #2d2d2d;
+        --digit-width: 58px;
+        --digit-height: 86px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .panel {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        background: var(--panel-bg);
+        padding: 20px 24px;
+        border: 1px solid #d6d1c3;
+        border-radius: 8px;
+    }
+
+    .logo-wrap {
+        width: 130px;
+        height: 130px;
+        display: grid;
+        place-items: center;
+        perspective: 700px;
+        flex: 0 0 auto;
+    }
+
+    .logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        transform-origin: top center;
+        transition: transform 600ms ease, opacity 600ms ease;
+    }
+
+    .logo.changing {
+        transform: rotateX(-90deg);
+        opacity: 0.2;
+    }
+
+    .counter {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 6px;
+        height: var(--digit-height);
+    }
+
+    .digit-window {
+        width: var(--digit-width);
+        height: var(--digit-height);
+        min-width: var(--digit-width);
+        overflow: hidden;
+        position: relative;
+        background: var(--window-bg);
+        border: 2px solid var(--frame-color);
+        border-radius: 3px;
+    }
+
+    .digit-strip {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        will-change: transform;
+    }
+
+    .digit-cell {
+        width: var(--digit-width);
+        height: var(--digit-height);
+        display: grid;
+        place-items: center;
+        color: var(--digit-color);
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 56px;
+        font-weight: 300;
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+    }
+
+    @media (max-width: 700px) {
+        :root {
+            --digit-width: 46px;
+            --digit-height: 68px;
+        }
+
+        .panel {
+            gap: 16px;
+            padding: 14px 16px;
+        }
+
+        .logo-wrap {
+            width: 90px;
+            height: 90px;
+        }
+
+        .digit-cell {
+            font-size: 44px;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="panel">
+        <div class="logo-wrap">
+            <img id="logo" class="logo" alt="platform logo">
+        </div>
+        <div id="counter" class="counter"></div>
+    </div>
+
+<script>
+
+    const platforms = [
+        {
+            key: "youtubeSubscribers",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
+            value: "123456"
+        },
+        {
+            key: "instagramFollowers",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+            value: "654321"
+        },
+        {
+            key: "facebookFollowers",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png",
+            value: "111999"
+        }
+    ];
+
+    const digitCount = 6;
+    let currentPlatformIndex = 0;
+
+    function createDigitWindow(initialDigit = "0") {
+        const windowEl = document.createElement("div");
+        windowEl.className = "digit-window";
+
+        const strip = document.createElement("div");
+        strip.className = "digit-strip";
+
+        for (let repeat = 0; repeat < 3; repeat++) {
+            for (let i = 0; i <= 9; i++) {
+                const cell = document.createElement("div");
+                cell.className = "digit-cell";
+                cell.textContent = i;
+                strip.appendChild(cell);
+            }
+        }
+
+        windowEl.appendChild(strip);
+        windowEl._strip = strip;
+        windowEl.dataset.currentDigit = initialDigit;
+        return windowEl;
+    }
+
+    function buildCounter() {
+        const counter = document.getElementById("counter");
+        counter.innerHTML = "";
+        for (let i = 0; i < digitCount; i++) {
+            counter.appendChild(createDigitWindow("0"));
+        }
+    }
+
+    function snapDigit(windowEl, digit) {
+        const strip = windowEl._strip;
+        const h = windowEl.offsetHeight;
+        strip.style.transition = "none";
+        strip.style.transform = `translateY(-${digit * h}px)`;
+        windowEl.dataset.currentDigit = String(digit);
+    }
+
+    function setDigit(windowEl, nextDigit, animate = true, delayMs = 0) {
+        const strip = windowEl._strip;
+        const h = windowEl.offsetHeight;
+        const currentDigit = parseInt(windowEl.dataset.currentDigit || "0", 10);
+        const targetDigit = parseInt(nextDigit, 10);
+
+        if (!animate) {
+            snapDigit(windowEl, targetDigit);
+            return;
+        }
+
+        let steps = targetDigit - currentDigit;
+        if (steps < 0) steps += 10;
+
+        if (steps === 0) {
+            steps = 1; // small visible update
+        }
+
+        const duration = 350 + steps * 90;
+
+        strip.style.transition = "none";
+        strip.style.transform = `translateY(-${currentDigit * h}px)`;
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                strip.style.transition = `transform ${duration}ms ease`;
+                strip.style.transform = `translateY(-${(currentDigit + steps) * h}px)`;
+            }, delayMs);
+        });
+
+        strip.addEventListener("transitionend", function handler() {
+            strip.removeEventListener("transitionend", handler);
+            snapDigit(windowEl, targetDigit);
+        }, { once: true });
+    }
+
+    function showNumber(value, animate = true) {
+        const clean = String(value).replace(/\D/g, "").padStart(digitCount, "0").slice(-digitCount);
+        const windows = document.querySelectorAll(".digit-window");
+
+        clean.split("").forEach((digit, index) => {
+            setDigit(windows[index], digit, animate, index * 50);
+        });
+    }
+
+    function changeLogo(newSrc) {
+        const logo = document.getElementById("logo");
+        logo.classList.add("changing");
+
+        setTimeout(() => {
+            logo.src = newSrc;
+            logo.classList.remove("changing");
+        }, 300);
+    }
+
+    function renderPlatform(animateDigits = false, animateLogo = false) {
+        const platform = platforms[currentPlatformIndex];
+
+        if (animateLogo) {
+            changeLogo(platform.logo);
+        } else {
+            document.getElementById("logo").src = platform.logo;
+        }
+
+        showNumber(platform.value, animateDigits);
+    }
+
+    function rotatePlatform() {
+        currentPlatformIndex = (currentPlatformIndex + 1) % platforms.length;
+        renderPlatform(true, true);
+    }
+
+    buildCounter();
+    renderPlatform(false, false);
+    setInterval(rotatePlatform, 4500);
+</script>
+</body>
+</html>
