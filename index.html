@@ -233,14 +233,48 @@
         }, { once: true });
     }
 
-    function showNumber(value, animate = true) {
-        const clean = String(value).replace(/\D/g, "").padStart(digitCount, "0").slice(-digitCount);
-        const windows = document.querySelectorAll(".digit-window");
+function showNumber(value, animate = true) {
+    const clean = String(value)
+        .replace(/\D/g, "")
+        .padStart(digitCount, "0")
+        .slice(-digitCount);
 
-        clean.split("").forEach((digit, index) => {
-            setDigit(windows[index], digit, animate, index * 50);
-        });
+    const windows = document.querySelectorAll(".digit-window");
+
+    // get current digits
+    const currentDigits = Array.from(windows).map(w =>
+        parseInt(w.dataset.currentDigit || "0", 10)
+    );
+
+    const nextDigits = clean.split("").map(d => parseInt(d, 10));
+
+    // process from RIGHT → LEFT (important)
+    let delay = 0;
+
+    for (let i = digitCount - 1; i >= 0; i--) {
+        const current = currentDigits[i];
+        const next = nextDigits[i];
+
+        let steps = next - current;
+        if (steps < 0) steps += 10;
+
+        if (steps === 0) {
+            // small bounce only
+            bounceDigit(windows[i], delay);
+            continue;
+        }
+
+        // animate this digit
+        setDigit(windows[i], next, true, delay);
+
+        // 🚨 ONLY carry if rollover (9 → 0)
+        if (current === 9 && next === 0) {
+            delay += 200; // next digit waits
+        } else {
+            break; // stop carry chain
+        }
     }
+}
 
     function changeLogo(newSrc) {
         const logo = document.getElementById("logo");
