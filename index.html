@@ -15,8 +15,8 @@
         --window-bg: #111111;
         --digit-color: #f2ead2;
         --frame-color: #2d2d2d;
-        --digit-width: 58px;
-        --digit-height: 86px;
+        --wheel-width: 44px;
+        --wheel-height: 66px;
     }
 
     * {
@@ -33,58 +33,110 @@
     }
 
     .panel {
-        display: flex;
+        display: grid;
+        grid-template-columns: 104px auto;
+        grid-template-areas:
+            "logo number"
+            "logo label";
+        column-gap: 16px;
+        row-gap: 8px;
         align-items: center;
-        gap: 28px;
         background: var(--panel-bg);
-        padding: 20px 24px;
+        padding: 22px 24px;
         border: 1px solid #d6d1c3;
         border-radius: 8px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    .metric-row {
+        display: flex;
+        align-items: center;
+    }
+
+    .number-row {
+        grid-area: number;
+    }
+
+    .label-row {
+        grid-area: label;
     }
 
     .logo-wrap {
-        width: 130px;
-        height: 130px;
-        display: grid;
-        place-items: center;
-        perspective: 700px;
+        width: 104px;
+        height: calc(var(--wheel-height) * 2 + 8px);
+        grid-area: logo;
+        position: relative;
+        overflow: hidden;
         flex: 0 0 auto;
+    }
+
+    .logo-reel {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logo-reel.rolling {
+        animation: platform-logo-reel-up 640ms cubic-bezier(0.16, 0.92, 0.24, 1.08);
     }
 
     .logo {
         width: 100%;
         height: 100%;
+        flex: 0 0 100%;
         object-fit: contain;
         display: block;
-        transform-origin: top center;
-        transition: transform 600ms ease, opacity 600ms ease;
     }
 
-    .logo.changing {
-        transform: rotateX(-90deg);
-        opacity: 0.2;
+    @keyframes platform-logo-reel-up {
+        0% {
+            transform: translateY(0);
+        }
+
+        80% {
+            transform: translateY(-105%);
+        }
+
+        92% {
+            transform: translateY(-98.5%);
+        }
+
+        100% {
+            transform: translateY(-100%);
+        }
     }
 
     .counter {
         display: flex;
         flex-wrap: nowrap;
         align-items: stretch;
-        gap: 6px;
-        height: var(--digit-height);
+        gap: 5px;
+        height: var(--wheel-height);
     }
 
-    .digit-window {
-        width: var(--digit-width);
-        height: var(--digit-height);
-        min-width: var(--digit-width);
+    .wheel-window {
+        height: var(--wheel-height);
         overflow: hidden;
         position: relative;
-        background: var(--window-bg);
+        background: linear-gradient(180deg, #171717 0%, #0c0c0c 48%, #141414 100%);
         border: 2px solid var(--frame-color);
         border-radius: 3px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -10px 14px rgba(0, 0, 0, 0.35);
     }
 
-    .digit-strip {
+    .wheel-window.blank-slot .wheel-strip {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .label-counter .wheel-window,
+    .value-counter .wheel-window {
+        width: var(--wheel-width);
+        min-width: var(--wheel-width);
+    }
+
+    .wheel-strip {
         position: absolute;
         left: 0;
         top: 0;
@@ -92,220 +144,393 @@
         will-change: transform;
     }
 
-    .digit-cell {
-        width: var(--digit-width);
-        height: var(--digit-height);
+    .wheel-cell {
+        height: var(--wheel-height);
         display: grid;
         place-items: center;
         color: var(--digit-color);
         font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
-        font-size: 56px;
         font-weight: 300;
         line-height: 1;
         padding: 0;
         margin: 0;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .label-counter .wheel-cell,
+    .value-counter .wheel-cell {
+        width: var(--wheel-width);
+        font-size: 48px;
     }
 
     @media (max-width: 700px) {
         :root {
-            --digit-width: 46px;
-            --digit-height: 68px;
+            --wheel-width: 34px;
+            --wheel-height: 50px;
         }
 
         .panel {
-            gap: 16px;
-            padding: 14px 16px;
+            grid-template-columns: 72px auto;
+            column-gap: 10px;
+            row-gap: 6px;
+            padding: 14px;
+            max-width: 100vw;
+            overflow-x: auto;
+        }
+
+        .metric-row {
+            gap: 0;
         }
 
         .logo-wrap {
-            width: 90px;
-            height: 90px;
+            width: 72px;
+            height: calc(var(--wheel-height) * 2 + 6px);
         }
 
-        .digit-cell {
-            font-size: 44px;
+        .label-counter .wheel-cell,
+        .value-counter .wheel-cell {
+            font-size: 36px;
         }
     }
 </style>
 </head>
 <body>
-    <div class="panel">
-        <div class="logo-wrap">
-            <img id="logo" class="logo" alt="platform logo">
-        </div>
-        <div id="counter" class="counter"></div>
-    </div>
+    <div id="display" class="panel"></div>
 
 <script>
-
     const platforms = [
         {
-            key: "youtubeSubscribers",
+            key: "youtube",
             logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
-            value: "123456"
+            metrics: [
+                { label: "FOLLOWERS", value: "123456" },
+                { label: "LIKES", value: "3456" },
+                { label: "VIEWS", value: "6789" }
+            ]
         },
         {
-            key: "instagramFollowers",
+            key: "instagram",
             logo: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-            value: "654321"
+            metrics: [
+                { label: "FOLLOWERS", value: "654321" },
+                { label: "LIKES", value: "23456" },
+                { label: "VIEWS", value: "98765" }
+            ]
         },
         {
-            key: "facebookFollowers",
+            key: "facebook",
             logo: "https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png",
-            value: "111999"
+            metrics: [
+                { label: "FOLLOWERS", value: "111999" },
+                { label: "LIKES", value: "12345" },
+                { label: "VIEWS", value: "67890" }
+            ]
         }
     ];
 
-    const digitCount = 6;
+    const wheelCount = 9;
+    const digitChars = " 0123456789".split("");
+    const labelChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const blankPauseMs = 260;
+    const resultHoldMs = 1200;
     let currentPlatformIndex = 0;
+    let currentMetricIndex = 0;
+    let rotationTimer = null;
 
-    function createDigitWindow(initialDigit = "0") {
+    function createWheelWindow(chars, initialChar = chars[0]) {
         const windowEl = document.createElement("div");
-        windowEl.className = "digit-window";
+        windowEl.className = "wheel-window";
 
         const strip = document.createElement("div");
-        strip.className = "digit-strip";
+        strip.className = "wheel-strip";
 
         for (let repeat = 0; repeat < 3; repeat++) {
-            for (let i = 0; i <= 9; i++) {
+            chars.forEach(char => {
                 const cell = document.createElement("div");
-                cell.className = "digit-cell";
-                cell.textContent = i;
+                cell.className = "wheel-cell";
+                cell.textContent = char;
                 strip.appendChild(cell);
-            }
+            });
         }
 
         windowEl.appendChild(strip);
         windowEl._strip = strip;
-        windowEl.dataset.currentDigit = initialDigit;
+        windowEl.dataset.currentIndex = String(Math.max(chars.indexOf(initialChar), 0));
         return windowEl;
     }
 
-    function buildCounter() {
-        const counter = document.getElementById("counter");
-        counter.innerHTML = "";
-        for (let i = 0; i < digitCount; i++) {
-            counter.appendChild(createDigitWindow("0"));
+    function createCounter(className, count, chars, initialChar) {
+        const counter = document.createElement("div");
+        counter.className = `counter ${className}`;
+
+        for (let i = 0; i < count; i++) {
+            counter.appendChild(createWheelWindow(chars, initialChar));
         }
+
+        return counter;
     }
 
-    function snapDigit(windowEl, digit) {
+    function snapWheel(windowEl, index) {
         const strip = windowEl._strip;
         const h = windowEl.offsetHeight;
         strip.style.transition = "none";
-        strip.style.transform = `translateY(-${digit * h}px)`;
-        windowEl.dataset.currentDigit = String(digit);
+        strip.style.transform = `translateY(-${index * h}px)`;
+        windowEl.dataset.currentIndex = String(index);
     }
 
-    function setDigit(windowEl, nextDigit, animate = true, delayMs = 0) {
+    function setWheelBlankState(windowEl, isBlank) {
+        windowEl.classList.toggle("blank-slot", isBlank);
+        windowEl._strip.style.opacity = isBlank ? "0" : "1";
+        windowEl._strip.style.visibility = isBlank ? "hidden" : "visible";
+    }
+
+    function setWheel(windowEl, chars, nextChar, animate = true, delayMs = 0, sameCharRollSteps = 0) {
         const strip = windowEl._strip;
         const h = windowEl.offsetHeight;
-        const currentDigit = parseInt(windowEl.dataset.currentDigit || "0", 10);
-        const targetDigit = parseInt(nextDigit, 10);
+        const currentIndex = parseInt(windowEl.dataset.currentIndex || "0", 10);
+        const targetIndex = Math.max(chars.indexOf(nextChar), 0);
 
         if (!animate) {
-            snapDigit(windowEl, targetDigit);
-            return;
+            snapWheel(windowEl, targetIndex);
+            return 0;
         }
 
-        let steps = targetDigit - currentDigit;
-        if (steps < 0) steps += 10;
+        let steps = targetIndex - currentIndex;
+        if (steps < 0) steps += chars.length;
 
         if (steps === 0) {
-            steps = 1; // small visible update
+            if (sameCharRollSteps > 0) {
+                steps = sameCharRollSteps;
+            } else {
+                snapWheel(windowEl, targetIndex);
+                return 0;
+            }
         }
 
-        const duration = 350 + steps * 90;
+        if (steps >= chars.length) {
+            steps = Math.min(steps, chars.length);
+        }
+
+        if (steps === 0) {
+            snapWheel(windowEl, targetIndex);
+            return 0;
+        }
+
+        const duration = 200 + steps * 32;
 
         strip.style.transition = "none";
-        strip.style.transform = `translateY(-${currentDigit * h}px)`;
+        strip.style.transform = `translateY(-${currentIndex * h}px)`;
 
         requestAnimationFrame(() => {
             setTimeout(() => {
-                strip.style.transition = `transform ${duration}ms ease`;
-                strip.style.transform = `translateY(-${(currentDigit + steps) * h}px)`;
+                strip.style.transition = `transform ${duration}ms cubic-bezier(0.16, 0.92, 0.24, 1.08)`;
+                strip.style.transform = `translateY(-${(currentIndex + steps) * h}px)`;
             }, delayMs);
         });
 
         strip.addEventListener("transitionend", function handler() {
             strip.removeEventListener("transitionend", handler);
-            snapDigit(windowEl, targetDigit);
+            snapWheel(windowEl, targetIndex);
         }, { once: true });
+
+        return duration;
     }
 
-function showNumber(value, animate = true) {
-    const clean = String(value)
-        .replace(/\D/g, "")
-        .padStart(digitCount, "0")
-        .slice(-digitCount);
+    function animateCounter(counter, chars, nextChars, animate = true, baseDelay = 0, sameCharRollSteps = 0) {
+        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
+        let cascadeDelay = baseDelay;
 
-    const windows = document.querySelectorAll(".digit-window");
-
-    // get current digits
-    const currentDigits = Array.from(windows).map(w =>
-        parseInt(w.dataset.currentDigit || "0", 10)
-    );
-
-    const nextDigits = clean.split("").map(d => parseInt(d, 10));
-
-    // process from RIGHT → LEFT (important)
-    let delay = 0;
-
-    for (let i = digitCount - 1; i >= 0; i--) {
-        const current = currentDigits[i];
-        const next = nextDigits[i];
-
-        let steps = next - current;
-        if (steps < 0) steps += 10;
-
-        if (steps === 0) {
-            // small bounce only
-            bounceDigit(windows[i], delay);
-            continue;
+        for (let index = nextChars.length - 1; index >= 0; index--) {
+            const duration = setWheel(
+                windows[index],
+                chars,
+                nextChars[index],
+                animate,
+                cascadeDelay,
+                sameCharRollSteps
+            );
+            cascadeDelay += animate ? duration : 0;
         }
 
-        // animate this digit
-        setDigit(windows[i], next, true, delay);
+        return cascadeDelay;
+    }
 
-        // 🚨 ONLY carry if rollover (9 → 0)
-        if (current === 9 && next === 0) {
-            delay += 200; // next digit waits
-        } else {
-            break; // stop carry chain
+    function clearNumber(counter) {
+        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
+
+        windows.forEach(windowEl => {
+            setWheel(windowEl, digitChars, " ", false);
+        });
+    }
+
+    function clearLabel(counter) {
+        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
+
+        windows.forEach(windowEl => {
+            setWheelBlankState(windowEl, true);
+            setWheel(windowEl, labelChars, " ", false);
+        });
+    }
+
+    function showNumber(counter, value, animate = true, baseDelay = 0) {
+        const clean = String(value)
+            .replace(/\D/g, "")
+            .slice(-wheelCount)
+            .padStart(wheelCount, " ");
+
+        return animateCounter(counter, digitChars, clean.split(""), animate, baseDelay, 0);
+    }
+
+    function showLabel(counter, value, animate = true, baseDelay = 0) {
+        const clean = String(value)
+            .toUpperCase()
+            .replace(/[^A-Z ]/g, "")
+            .slice(-wheelCount)
+            .padStart(wheelCount, " ");
+
+        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
+        const nextChars = clean.split("");
+        let cascadeDelay = baseDelay;
+
+        nextChars.forEach((char, index) => {
+            if (char === " ") {
+                setWheelBlankState(windows[index], true);
+                setWheel(windows[index], labelChars, char, false);
+            } else {
+                setWheelBlankState(windows[index], false);
+            }
+        });
+
+        for (let index = nextChars.length - 1; index >= 0; index--) {
+            if (nextChars[index] === " ") {
+                continue;
+            }
+
+            const duration = setWheel(
+                windows[index],
+                labelChars,
+                nextChars[index],
+                animate,
+                cascadeDelay,
+                6
+            );
+            cascadeDelay += animate ? duration : 0;
         }
-    }
-}
 
-    function changeLogo(newSrc) {
-        const logo = document.getElementById("logo");
-        logo.classList.add("changing");
-
-        setTimeout(() => {
-            logo.src = newSrc;
-            logo.classList.remove("changing");
-        }, 300);
+        return cascadeDelay;
     }
 
-    function renderPlatform(animateDigits = false, animateLogo = false) {
+    function createLogoReel(src = "") {
+        const wrap = document.createElement("div");
+        wrap.className = "logo-wrap";
+
+        const reel = document.createElement("div");
+        reel.className = "logo-reel";
+        reel.dataset.currentSrc = src;
+        reel.innerHTML = `<img class="logo" src="${src}" alt="platform logo">`;
+        wrap.appendChild(reel);
+
+        return wrap;
+    }
+
+    function changeLogo(row, newSrc, animate = true) {
+        const reel = row.querySelector(".logo-reel");
+        const currentSrc = reel.dataset.currentSrc || newSrc;
+
+        if (!animate) {
+            reel.dataset.currentSrc = newSrc;
+            reel.innerHTML = `<img class="logo" src="${newSrc}" alt="platform logo">`;
+            return;
+        }
+
+        if (currentSrc === newSrc) {
+            return;
+        }
+
+        reel.classList.remove("rolling");
+        reel.innerHTML = `
+            <img class="logo" src="${currentSrc}" alt="platform logo">
+            <img class="logo" src="${newSrc}" alt="platform logo">
+        `;
+        reel.dataset.currentSrc = newSrc;
+        void reel.offsetWidth;
+        reel.classList.add("rolling");
+
+        reel.addEventListener("animationend", function handler() {
+            reel.classList.remove("rolling");
+            reel.innerHTML = `<img class="logo" src="${newSrc}" alt="platform logo">`;
+            reel.removeEventListener("animationend", handler);
+        });
+    }
+
+    function buildDisplay() {
+        const display = document.getElementById("display");
+        display.innerHTML = "";
+
+        display.appendChild(createLogoReel(platforms[0].logo));
+
+        const numberRow = document.createElement("div");
+        numberRow.className = "metric-row number-row";
+        numberRow.appendChild(createCounter("value-counter", wheelCount, digitChars, " "));
+
+        const labelRow = document.createElement("div");
+        labelRow.className = "metric-row label-row";
+        labelRow.appendChild(createCounter("label-counter", wheelCount, labelChars, " "));
+
+        display.appendChild(numberRow);
+        display.appendChild(labelRow);
+    }
+
+    function renderPlatform(animate = false) {
         const platform = platforms[currentPlatformIndex];
+        const metric = platform.metrics[currentMetricIndex];
+        const display = document.getElementById("display");
+        const numberRow = document.querySelector(".number-row");
+        const labelRow = document.querySelector(".label-row");
+        const labelCounter = labelRow.querySelector(".label-counter");
+        const valueCounter = numberRow.querySelector(".value-counter");
 
-        if (animateLogo) {
-            changeLogo(platform.logo);
-        } else {
-            document.getElementById("logo").src = platform.logo;
+        if (!animate) {
+            changeLogo(display, platform.logo, false);
+            showNumber(valueCounter, metric.value, false);
+            showLabel(labelCounter, metric.label, false);
+            return 0;
         }
 
-        showNumber(platform.value, animateDigits);
+        changeLogo(display, platform.logo, false);
+        clearNumber(valueCounter);
+        clearLabel(labelCounter);
+
+        const numberFinishedAt = showNumber(valueCounter, metric.value, true, blankPauseMs);
+        const labelFinishedAt = showLabel(labelCounter, metric.label, true, numberFinishedAt);
+
+        return labelFinishedAt;
     }
 
     function rotatePlatform() {
-        currentPlatformIndex = (currentPlatformIndex + 1) % platforms.length;
-        renderPlatform(true, true);
+        currentMetricIndex = (currentMetricIndex + 1) % platforms[currentPlatformIndex].metrics.length;
+
+        if (currentMetricIndex === 0) {
+            currentPlatformIndex = (currentPlatformIndex + 1) % platforms.length;
+        }
+
+        const animationDuration = renderPlatform(true);
+        scheduleNextRotation(animationDuration + resultHoldMs);
     }
 
-    buildCounter();
-    renderPlatform(false, false);
-    setInterval(rotatePlatform, 4500);
+    function scheduleNextRotation(delayMs) {
+        if (rotationTimer) {
+            clearTimeout(rotationTimer);
+        }
+
+        rotationTimer = setTimeout(() => {
+            rotatePlatform();
+        }, delayMs);
+    }
+
+    buildDisplay();
+    renderPlatform(false);
+    scheduleNextRotation(resultHoldMs + 1500);
 </script>
 </body>
 </html>
