@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+      APP_ADDR: ":8080"
+      SESSION_STORE_PATH: /app/data/sessions.json
+      BOARD_STORE_PATH: /app/data/boards.json
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  caddy:
+    profiles: ["public"]
+    image: caddy:2
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

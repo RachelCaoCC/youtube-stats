@@ -11,16 +11,27 @@
 
 <style>
     :root {
-        --panel-bg: #f5f2ea;
-        --window-bg: #111111;
-        --digit-color: #f2ead2;
-        --frame-color: #2d2d2d;
+        --panel-bg: #efe3c7;
+        --panel-shadow: #cab990;
+        --window-bg: #18130d;
+        --window-top: #30261b;
+        --window-bottom: #130e09;
+        --digit-color: #f6e7c2;
+        --digit-shadow: rgba(0, 0, 0, 0.38);
+        --frame-color: #554431;
+        --divider-color: #8f7759;
         --wheel-width: 44px;
         --wheel-height: 66px;
+        --card-height: 72px;
+        --label-width: 236px;
     }
 
     * {
         box-sizing: border-box;
+    }
+
+    [hidden] {
+        display: none !important;
     }
 
     body {
@@ -28,53 +39,431 @@
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: white;
+        background:
+            radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 38%),
+            linear-gradient(180deg, #fdf6e8 0%, #e4cf9b 100%);
         font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    .chooser-screen,
+    .panel {
+        display: grid;
+        background: var(--panel-bg);
+        padding: 22px 24px;
+        border: 2px solid #d1bf95;
+        border-radius: 14px;
+        box-shadow:
+            0 16px 36px rgba(82, 57, 21, 0.18),
+            inset 0 2px 0 rgba(255, 250, 238, 0.9),
+            inset 0 -4px 0 var(--panel-shadow);
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    .chooser-screen {
+        gap: 18px;
+        min-width: min(100%, 720px);
+    }
+
+    .chooser-header {
+        display: grid;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .chooser-title {
+        margin: 0;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 34px;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        color: #3f311e;
+    }
+
+    .chooser-subtitle {
+        margin: 0;
+        color: #6e5a3f;
+        font-size: 14px;
+    }
+
+    .chooser-section {
+        display: grid;
+        gap: 10px;
+    }
+
+    .chooser-section-title {
+        margin: 0;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        color: #4a3923;
+    }
+
+    .platform-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .platform-option {
+        appearance: none;
+        border: 2px solid #ceb98a;
+        border-radius: 14px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(240, 226, 188, 0.75)),
+            linear-gradient(180deg, #f7ecd3 0%, #ead9ad 100%);
+        padding: 14px 16px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        text-align: left;
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 6px 12px rgba(87, 63, 28, 0.08);
+    }
+
+    .platform-option:hover {
+        transform: translateY(-1px);
+        border-color: #a38759;
+    }
+
+    .platform-option.selected {
+        border-color: #6d5330;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(223, 199, 147, 0.82)),
+            linear-gradient(180deg, #f1deb0 0%, #dcc287 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 10px 18px rgba(87, 63, 28, 0.16);
+    }
+
+    .platform-option-logo {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .platform-option-name {
+        color: #3f311e;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 26px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        line-height: 1;
+    }
+
+    .platform-option-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 2px solid #9a8257;
+        display: grid;
+        place-items: center;
+        color: transparent;
+        font-size: 15px;
+        font-weight: 700;
+        transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+    }
+
+    .platform-option.selected .platform-option-mark {
+        background: #5d4728;
+        border-color: #5d4728;
+        color: #f9edcb;
+    }
+
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .metric-option {
+        appearance: none;
+        border: 2px solid #ceb98a;
+        border-radius: 14px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(240, 226, 188, 0.75)),
+            linear-gradient(180deg, #f7ecd3 0%, #ead9ad 100%);
+        min-height: 108px;
+        padding: 14px 12px;
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 6px 12px rgba(87, 63, 28, 0.08);
+    }
+
+    .metric-option:hover {
+        transform: translateY(-1px);
+        border-color: #a38759;
+    }
+
+    .metric-option.selected {
+        border-color: #6d5330;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(223, 199, 147, 0.82)),
+            linear-gradient(180deg, #f1deb0 0%, #dcc287 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 10px 18px rgba(87, 63, 28, 0.16);
+    }
+
+    .metric-option.locked {
+        cursor: default;
+    }
+
+    .metric-option-name {
+        color: #3f311e;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        line-height: 1;
+    }
+
+    .metric-option-note {
+        color: #6e5a3f;
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+    .metric-option-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 2px solid #9a8257;
+        display: grid;
+        place-items: center;
+        color: transparent;
+        font-size: 15px;
+        font-weight: 700;
+        transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+    }
+
+    .metric-option.selected .metric-option-mark {
+        background: #5d4728;
+        border-color: #5d4728;
+        color: #f9edcb;
+    }
+
+    .chooser-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .youtube-connect-card {
+        border: 2px solid #ceb98a;
+        border-radius: 16px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(238, 223, 184, 0.78)),
+            linear-gradient(180deg, #f7ecd3 0%, #ead9ad 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 6px 12px rgba(87, 63, 28, 0.08);
+    }
+
+    .youtube-connect-copy {
+        display: grid;
+        gap: 6px;
+    }
+
+    .youtube-connect-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .youtube-connect-title {
+        margin: 0;
+        color: #3f311e;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        line-height: 1;
+    }
+
+    .youtube-connect-badge {
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #f9edcb;
+        background: #8e7347;
+    }
+
+    .youtube-connect-badge.connected {
+        background: #587436;
+    }
+
+    .youtube-connect-status,
+    .youtube-connect-note {
+        margin: 0;
+        color: #6e5a3f;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .youtube-connect-note {
+        font-size: 12px;
+    }
+
+    .youtube-connect-steps {
+        margin: 2px 0 0;
+        padding-left: 18px;
+        color: #5f4a31;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .youtube-connect-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .connect-button,
+    .secondary-button {
+        appearance: none;
+        border-radius: 999px;
+        padding: 11px 18px;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 18px;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        cursor: pointer;
+        transition: filter 180ms ease, transform 180ms ease, opacity 180ms ease;
+    }
+
+    .connect-button {
+        border: 0;
+        background: linear-gradient(180deg, #b02e21 0%, #7f1f18 100%);
+        color: #fff2d1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 16px rgba(69, 20, 12, 0.18);
+    }
+
+    .secondary-button {
+        border: 2px solid #8f7759;
+        background: rgba(255, 248, 233, 0.4);
+        color: #4b3924;
+    }
+
+    .connect-button:hover,
+    .secondary-button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .connect-button:disabled,
+    .secondary-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        box-shadow: none;
+        pointer-events: none;
+    }
+
+    .connect-button.disabled {
+        pointer-events: none;
+        opacity: 0.45;
+        box-shadow: none;
+    }
+
+    .chooser-hint {
+        margin: 0;
+        color: #6e5a3f;
+        font-size: 14px;
+    }
+
+    .chooser-hint.ready {
+        color: #4f6a2a;
+    }
+
+    .board-public-link {
+        display: inline-block;
+        color: #5b4324;
+        font-size: 13px;
+        line-height: 1.45;
+        word-break: break-all;
+    }
+
+    .start-button {
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 22px;
+        background: linear-gradient(180deg, #6f5733 0%, #503b1f 100%);
+        color: #f8ecca;
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 22px;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 16px rgba(43, 27, 10, 0.18);
+    }
+
+    .start-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        box-shadow: none;
+    }
+
+    .start-button:not(:disabled):hover {
+        filter: brightness(1.04);
     }
 
     .panel {
-        display: grid;
-        grid-template-columns: 104px auto;
         grid-template-areas:
-            "logo number"
-            "logo label";
-        column-gap: 16px;
-        row-gap: 8px;
-        align-items: center;
-        background: var(--panel-bg);
-        padding: 22px 24px;
-        border: 1px solid #d6d1c3;
-        border-radius: 8px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            "logo"
+            "primary"
+            "secondary";
+        row-gap: 12px;
+        justify-items: stretch;
     }
 
     .metric-row {
         display: flex;
+        flex-direction: column;
+        gap: 8px;
         align-items: center;
+        width: 100%;
     }
 
-    .number-row {
-        grid-area: number;
+    .primary-row {
+        grid-area: primary;
     }
 
-    .label-row {
-        grid-area: label;
+    .secondary-row {
+        grid-area: secondary;
     }
 
     .logo-wrap {
-        width: 104px;
-        height: calc(var(--wheel-height) * 2 + 8px);
+        width: 100%;
+        height: 96px;
         grid-area: logo;
         position: relative;
         overflow: hidden;
-        flex: 0 0 auto;
+        padding: 10px;
+        background: rgba(255, 248, 233, 0.45);
+        border: 1px solid rgba(110, 87, 48, 0.2);
+        border-radius: 12px;
     }
 
     .logo-reel {
-        width: 100%;
+        width: 126px;
         height: 100%;
         display: flex;
         flex-direction: column;
+        margin: 0 auto;
     }
 
     .logo-reel.rolling {
@@ -112,15 +501,20 @@
         flex-wrap: nowrap;
         align-items: stretch;
         gap: 5px;
+    }
+
+    .value-counter {
         height: var(--wheel-height);
     }
 
     .wheel-window {
+        width: var(--wheel-width);
+        min-width: var(--wheel-width);
         height: var(--wheel-height);
         overflow: hidden;
         position: relative;
         background: linear-gradient(180deg, #171717 0%, #0c0c0c 48%, #141414 100%);
-        border: 2px solid var(--frame-color);
+        border: 2px solid #2d2d2d;
         border-radius: 3px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -10px 14px rgba(0, 0, 0, 0.35);
     }
@@ -128,12 +522,6 @@
     .wheel-window.blank-slot .wheel-strip {
         opacity: 0;
         visibility: hidden;
-    }
-
-    .label-counter .wheel-window,
-    .value-counter .wheel-window {
-        width: var(--wheel-width);
-        min-width: var(--wheel-width);
     }
 
     .wheel-strip {
@@ -145,11 +533,13 @@
     }
 
     .wheel-cell {
+        width: var(--wheel-width);
         height: var(--wheel-height);
         display: grid;
         place-items: center;
-        color: var(--digit-color);
+        color: #f2ead2;
         font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-size: 48px;
         font-weight: 300;
         line-height: 1;
         padding: 0;
@@ -157,59 +547,317 @@
         text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .label-counter .wheel-cell,
-    .value-counter .wheel-cell {
-        width: var(--wheel-width);
-        font-size: 48px;
+    .label-counter {
+        width: var(--label-width);
+        min-width: var(--label-width);
+        height: var(--card-height);
+    }
+
+    .flip-board {
+        width: 100%;
+        height: var(--card-height);
+        position: relative;
+        overflow: hidden;
+        perspective: 800px;
+        transform-style: preserve-3d;
+        border: 2px solid var(--frame-color);
+        border-radius: 6px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 14%),
+            linear-gradient(180deg, var(--window-top) 0%, var(--window-bottom) 100%);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            inset 0 -10px 16px rgba(0, 0, 0, 0.3),
+            0 3px 8px rgba(43, 27, 10, 0.22);
+    }
+
+    .flip-board.blank-slot {
+        opacity: 0.22;
+    }
+
+    .flip-board.blank-slot .flip-static,
+    .flip-board.blank-slot .flip-half,
+    .flip-board.blank-slot .flip-char {
+        opacity: 0;
+    }
+
+    .flip-static,
+    .flip-half,
+    .flip-char {
+        position: absolute;
+        inset: 0;
+    }
+
+    .flip-half {
+        overflow: hidden;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+        will-change: transform, opacity;
+    }
+
+    .flip-top,
+    .flip-top-back,
+    .flip-static-top {
+        top: 0;
+        height: 50%;
+        transform-origin: bottom center;
+        background: linear-gradient(180deg, #35291d 0%, #1f1812 100%);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+    }
+
+    .flip-bottom,
+    .flip-bottom-back,
+    .flip-static-bottom {
+        top: 50%;
+        height: 50%;
+        transform-origin: top center;
+        background: linear-gradient(180deg, #1c140e 0%, #110d08 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .flip-static-top::after,
+    .flip-static-bottom::before,
+    .flip-top::after,
+    .flip-bottom::before,
+    .flip-top-back::after,
+    .flip-bottom-back::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: var(--divider-color);
+        opacity: 0.7;
+    }
+
+    .flip-static-top::after,
+    .flip-top::after,
+    .flip-top-back::after {
+        bottom: 0;
+    }
+
+    .flip-static-bottom::before,
+    .flip-bottom::before,
+    .flip-bottom-back::before {
+        top: 0;
+    }
+
+    .flip-top::before,
+    .flip-bottom::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    .flip-top::before {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.42));
+    }
+
+    .flip-bottom::after {
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.02));
+    }
+
+    .flip-char {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: var(--card-height);
+        color: var(--digit-color);
+        font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+        font-weight: 400;
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.06), 0 2px 10px var(--digit-shadow);
+        transform: translateY(-1px);
+    }
+
+    .label-counter .flip-char {
+        font-size: 40px;
+        letter-spacing: 0.12em;
+        white-space: nowrap;
+        padding-left: 0.12em;
+    }
+
+    .flip-bottom .flip-char,
+    .flip-static-bottom .flip-char,
+    .flip-bottom-back .flip-char {
+        transform: translateY(calc(var(--card-height) * -0.5 - 1px));
+    }
+
+    .flip-top {
+        z-index: 5;
+        visibility: hidden;
+        transform: rotateX(0deg);
+    }
+
+    .flip-top-back,
+    .flip-bottom {
+        z-index: 4;
+        visibility: hidden;
+    }
+
+    .flip-bottom-back,
+    .flip-static-bottom {
+        z-index: 2;
+    }
+
+    .flip-static-top {
+        z-index: 1;
+    }
+
+    .flip-bottom {
+        transform: rotateX(90deg);
+        opacity: 0;
+    }
+
+    .flip-board.flipping .flip-top,
+    .flip-board.flipping .flip-bottom {
+        visibility: visible;
+    }
+
+    .flip-board.flipping .flip-top {
+        animation: top-flip 280ms cubic-bezier(0.37, 0.01, 0.2, 1) both;
+    }
+
+    .flip-board.flipping .flip-bottom {
+        animation: bottom-flip 260ms cubic-bezier(0.17, 0.84, 0.4, 1) 280ms both;
+    }
+
+    .flip-board.flipping .flip-top::before {
+        animation: top-shadow 280ms ease-in both;
+    }
+
+    .flip-board.flipping .flip-bottom::after {
+        animation: bottom-shadow 260ms ease-out 280ms both;
+    }
+
+    @keyframes top-flip {
+        from {
+            transform: rotateX(0deg);
+        }
+
+        to {
+            transform: rotateX(-90deg);
+        }
+    }
+
+    @keyframes bottom-flip {
+        from {
+            transform: rotateX(90deg);
+            opacity: 0.65;
+        }
+
+        to {
+            transform: rotateX(0deg);
+            opacity: 1;
+        }
+    }
+
+    @keyframes top-shadow {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes bottom-shadow {
+        from {
+            opacity: 0.85;
+        }
+
+        to {
+            opacity: 0;
+        }
     }
 
     @media (max-width: 700px) {
         :root {
             --wheel-width: 34px;
             --wheel-height: 50px;
+            --card-height: 56px;
+            --label-width: 176px;
+        }
+
+        .chooser-screen {
+            width: min(100%, 420px);
+            padding: 18px 16px;
+        }
+
+        .chooser-title {
+            font-size: 28px;
+        }
+
+        .platform-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .metric-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .platform-option {
+            padding: 12px 14px;
+        }
+
+        .platform-option-name {
+            font-size: 22px;
+        }
+
+        .chooser-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .youtube-connect-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .youtube-connect-actions {
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .panel {
-            grid-template-columns: 72px auto;
-            column-gap: 10px;
-            row-gap: 6px;
+            row-gap: 8px;
             padding: 14px;
             max-width: 100vw;
             overflow-x: auto;
         }
 
-        .metric-row {
-            gap: 0;
-        }
-
         .logo-wrap {
-            width: 72px;
-            height: calc(var(--wheel-height) * 2 + 6px);
+            height: 76px;
         }
 
-        .label-counter .wheel-cell,
-        .value-counter .wheel-cell {
+        .logo-reel {
+            width: 88px;
+        }
+
+        .wheel-cell {
             font-size: 36px;
+        }
+
+        .label-counter .flip-char {
+            font-size: 28px;
         }
     }
 </style>
 </head>
 <body>
-    <div id="display" class="panel"></div>
+    <div id="chooser" class="chooser-screen"></div>
+    <div id="display" class="panel" hidden></div>
 
 <script>
     const platforms = [
         {
-            key: "youtube",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
-            metrics: [
-                { label: "FOLLOWERS", value: "123456" },
-                { label: "LIKES", value: "3456" },
-                { label: "VIEWS", value: "6789" }
-            ]
-        },
-        {
             key: "instagram",
+            name: "Instagram",
             logo: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
             metrics: [
                 { label: "FOLLOWERS", value: "654321" },
@@ -218,24 +866,119 @@
             ]
         },
         {
+            key: "tiktok",
+            name: "TikTok",
+            logo: "https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg",
+            metrics: [
+                { label: "FOLLOWERS", value: "845321" },
+                { label: "LIKES", value: "31876" },
+                { label: "VIEWS", value: "40218" }
+            ]
+        },
+        {
             key: "facebook",
+            name: "Facebook",
             logo: "https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png",
             metrics: [
                 { label: "FOLLOWERS", value: "111999" },
                 { label: "LIKES", value: "12345" },
                 { label: "VIEWS", value: "67890" }
             ]
+        },
+        {
+            key: "youtube",
+            name: "YouTube",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
+            metrics: [
+                { label: "FOLLOWERS", value: "123456" },
+                { label: "LIKES", value: "3456" },
+                { label: "VIEWS", value: "6789" }
+            ]
         }
     ];
 
+    const topRowMetricOptions = [
+        { metricLabel: "VIEWS", displayLabel: "VIEWERS" },
+        { metricLabel: "LIKES", displayLabel: "LIKES" }
+    ];
+    const followerMetricLabel = "FOLLOWERS";
     const wheelCount = 9;
     const digitChars = " 0123456789".split("");
-    const labelChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     const blankPauseMs = 260;
     const resultHoldMs = 1200;
+    const labelFlipStartMs = blankPauseMs;
+    const wheelBaseDurationMs = 180;
+    const wheelStepDurationMs = 52;
+    const wheelDigitSettleGapMs = 40;
+    const boardFlipTopDurationMs = 280;
+    const boardFlipBottomDurationMs = 260;
+    const socialRefreshIntervalMs = 60000;
+    const minimumPlatformSelection = 1;
+    const selectedPlatformKeys = new Set();
+    const selectedTopMetricLabels = new Set();
+    const platformMetricDefaults = new Map(platforms.map(platform => [
+        platform.key,
+        new Map(platform.metrics.map(metric => [metric.label, metric.value]))
+    ]));
+    const youtubeState = {
+        oauthConfigured: false,
+        connected: false,
+        channelId: "",
+        channelTitle: "",
+        channelThumbnailUrl: "",
+        subscriberCount: "",
+        viewCount: "",
+        likeCount: "",
+        error: ""
+    };
+    const instagramState = {
+        oauthConfigured: false,
+        connected: false,
+        userId: "",
+        username: "",
+        profilePictureUrl: "",
+        followersCount: "",
+        likeCount: "",
+        error: ""
+    };
+    const tiktokState = {
+        oauthConfigured: false,
+        connected: false,
+        openId: "",
+        displayName: "",
+        username: "",
+        avatarUrl: "",
+        followersCount: "",
+        likeCount: "",
+        viewCount: "",
+        error: ""
+    };
+    const appPath = window.location.pathname;
+    const publicBoardMatch = appPath.match(/^\/board\/([^/]+)$/i);
+    const publicBoardSlug = publicBoardMatch ? decodeURIComponent(publicBoardMatch[1]) : "";
+    const isPublicBoardMode = publicBoardSlug.length > 0;
+    const boardState = {
+        exists: false,
+        slug: "",
+        publicUrl: "",
+        platformKeys: [],
+        topMetricLabels: [],
+        updatedAt: "",
+        error: "",
+        publicViewerNote: ""
+    };
+    let youtubeFlashStatus = new URLSearchParams(window.location.search).get("youtube") || "";
+    let instagramFlashStatus = new URLSearchParams(window.location.search).get("instagram") || "";
+    let tiktokFlashStatus = new URLSearchParams(window.location.search).get("tiktok") || "";
+    let activePlatforms = [];
+    let activeTopRowMetrics = [];
     let currentPlatformIndex = 0;
-    let currentMetricIndex = 0;
+    let currentRotatingMetricIndex = 0;
     let rotationTimer = null;
+    let youtubeRefreshTimer = null;
+    let instagramRefreshTimer = null;
+    let tiktokRefreshTimer = null;
+    let publicBoardRefreshTimer = null;
 
     function createWheelWindow(chars, initialChar = chars[0]) {
         const windowEl = document.createElement("div");
@@ -259,7 +1002,7 @@
         return windowEl;
     }
 
-    function createCounter(className, count, chars, initialChar) {
+    function createWheelCounter(className, count, chars, initialChar) {
         const counter = document.createElement("div");
         counter.className = `counter ${className}`;
 
@@ -316,14 +1059,14 @@
             return 0;
         }
 
-        const duration = 200 + steps * 32;
+        const duration = wheelBaseDurationMs + steps * wheelStepDurationMs;
 
         strip.style.transition = "none";
         strip.style.transform = `translateY(-${currentIndex * h}px)`;
 
         requestAnimationFrame(() => {
             setTimeout(() => {
-                strip.style.transition = `transform ${duration}ms cubic-bezier(0.16, 0.92, 0.24, 1.08)`;
+                strip.style.transition = `transform ${duration}ms cubic-bezier(0.22, 0.72, 0.2, 1)`;
                 strip.style.transform = `translateY(-${(currentIndex + steps) * h}px)`;
             }, delayMs);
         });
@@ -336,7 +1079,7 @@
         return duration;
     }
 
-    function animateCounter(counter, chars, nextChars, animate = true, baseDelay = 0, sameCharRollSteps = 0) {
+    function animateWheelCounter(counter, chars, nextChars, animate = true, baseDelay = 0, sameCharRollSteps = 0) {
         const windows = Array.from(counter.querySelectorAll(".wheel-window"));
         let cascadeDelay = baseDelay;
 
@@ -349,10 +1092,988 @@
                 cascadeDelay,
                 sameCharRollSteps
             );
-            cascadeDelay += animate ? duration : 0;
+
+            if (animate && duration > 0) {
+                cascadeDelay += duration + wheelDigitSettleGapMs;
+            }
         }
 
-        return cascadeDelay;
+        return animate ? Math.max(baseDelay, cascadeDelay - wheelDigitSettleGapMs) : cascadeDelay;
+    }
+
+    function createFlipHalf(className, initialChar = " ") {
+        const half = document.createElement("div");
+        half.className = `flip-half ${className}`;
+        half.innerHTML = `<span class="flip-char">${initialChar}</span>`;
+        return half;
+    }
+
+    function createFlipBoard(initialText = "") {
+        const board = document.createElement("div");
+        board.className = "flip-board";
+        board.dataset.currentText = initialText;
+        board.innerHTML = `
+            <div class="flip-static flip-static-top"><span class="flip-char">${initialText}</span></div>
+            <div class="flip-static flip-static-bottom"><span class="flip-char">${initialText}</span></div>
+        `;
+
+        board.appendChild(createFlipHalf("flip-top", initialText));
+        board.appendChild(createFlipHalf("flip-bottom", initialText));
+        return board;
+    }
+
+    function createLabelCounter(initialText = "") {
+        const counter = document.createElement("div");
+        counter.className = "counter label-counter";
+        counter.appendChild(createFlipBoard(initialText));
+        return counter;
+    }
+
+    function getMetricValue(platform, metricLabel) {
+        const metric = platform.metrics.find(({ label }) => label === metricLabel);
+        return metric ? metric.value : "";
+    }
+
+    function getPlatformByKey(platformKey) {
+        return platforms.find(({ key }) => key === platformKey) || null;
+    }
+
+    function getDefaultMetricValue(platformKey, metricLabel) {
+        const metrics = platformMetricDefaults.get(platformKey);
+        return metrics && metrics.has(metricLabel) ? metrics.get(metricLabel) : "";
+    }
+
+    function setMetricValue(platformKey, metricLabel, value) {
+        const platform = getPlatformByKey(platformKey);
+        if (!platform) {
+            return;
+        }
+
+        const metric = platform.metrics.find(({ label }) => label === metricLabel);
+        if (metric) {
+            metric.value = String(value);
+        }
+    }
+
+    function resetYouTubePrototypeMetrics() {
+        setMetricValue("youtube", "FOLLOWERS", getDefaultMetricValue("youtube", "FOLLOWERS"));
+        setMetricValue("youtube", "VIEWS", getDefaultMetricValue("youtube", "VIEWS"));
+        setMetricValue("youtube", "LIKES", getDefaultMetricValue("youtube", "LIKES"));
+    }
+
+    function applyYouTubeLiveMetrics() {
+        const followerValue = String(youtubeState.subscriberCount || "").replace(/\D/g, "");
+        const viewValue = String(youtubeState.viewCount || "").replace(/\D/g, "");
+        const likeValue = String(youtubeState.likeCount || "").replace(/\D/g, "");
+
+        if (followerValue) {
+            setMetricValue("youtube", "FOLLOWERS", followerValue);
+        }
+        if (viewValue) {
+            setMetricValue("youtube", "VIEWS", viewValue);
+        }
+        if (likeValue) {
+            setMetricValue("youtube", "LIKES", likeValue);
+        }
+    }
+
+    function resetInstagramPrototypeMetrics() {
+        setMetricValue("instagram", "FOLLOWERS", getDefaultMetricValue("instagram", "FOLLOWERS"));
+        setMetricValue("instagram", "LIKES", getDefaultMetricValue("instagram", "LIKES"));
+    }
+
+    function applyInstagramLiveMetrics() {
+        const followerValue = String(instagramState.followersCount || "").replace(/\D/g, "");
+        const likeValue = String(instagramState.likeCount || "").replace(/\D/g, "");
+
+        if (followerValue) {
+            setMetricValue("instagram", "FOLLOWERS", followerValue);
+        }
+        if (likeValue) {
+            setMetricValue("instagram", "LIKES", likeValue);
+        }
+    }
+
+    function resetTikTokPrototypeMetrics() {
+        setMetricValue("tiktok", "FOLLOWERS", getDefaultMetricValue("tiktok", "FOLLOWERS"));
+        setMetricValue("tiktok", "VIEWS", getDefaultMetricValue("tiktok", "VIEWS"));
+        setMetricValue("tiktok", "LIKES", getDefaultMetricValue("tiktok", "LIKES"));
+    }
+
+    function applyTikTokLiveMetrics() {
+        const followerValue = String(tiktokState.followersCount || "").replace(/\D/g, "");
+        const viewValue = String(tiktokState.viewCount || "").replace(/\D/g, "");
+        const likeValue = String(tiktokState.likeCount || "").replace(/\D/g, "");
+
+        if (followerValue) {
+            setMetricValue("tiktok", "FOLLOWERS", followerValue);
+        }
+        if (viewValue) {
+            setMetricValue("tiktok", "VIEWS", viewValue);
+        }
+        if (likeValue) {
+            setMetricValue("tiktok", "LIKES", likeValue);
+        }
+    }
+
+    function resetDynamicPlatformMetrics() {
+        resetInstagramPrototypeMetrics();
+        resetYouTubePrototypeMetrics();
+        resetTikTokPrototypeMetrics();
+    }
+
+    function applyPublicBoardPayload(payload) {
+        resetDynamicPlatformMetrics();
+
+        const platformStates = payload && payload.platformStates ? payload.platformStates : {};
+        const youtubeMetrics = platformStates.youtube || null;
+        const instagramMetrics = platformStates.instagram || null;
+        const tiktokMetrics = platformStates.tiktok || null;
+
+        youtubeState.connected = Boolean(youtubeMetrics && youtubeMetrics.live);
+        youtubeState.subscriberCount = youtubeMetrics ? youtubeMetrics.followers || "" : "";
+        youtubeState.viewCount = youtubeMetrics ? youtubeMetrics.views || "" : "";
+        youtubeState.likeCount = youtubeMetrics ? youtubeMetrics.likes || "" : "";
+        if (youtubeState.connected) {
+            applyYouTubeLiveMetrics();
+        }
+
+        instagramState.connected = Boolean(instagramMetrics && instagramMetrics.live);
+        instagramState.followersCount = instagramMetrics ? instagramMetrics.followers || "" : "";
+        instagramState.likeCount = instagramMetrics ? instagramMetrics.likes || "" : "";
+        if (instagramState.connected) {
+            applyInstagramLiveMetrics();
+        }
+
+        tiktokState.connected = Boolean(tiktokMetrics && tiktokMetrics.live);
+        tiktokState.followersCount = tiktokMetrics ? tiktokMetrics.followers || "" : "";
+        tiktokState.viewCount = tiktokMetrics ? tiktokMetrics.views || "" : "";
+        tiktokState.likeCount = tiktokMetrics ? tiktokMetrics.likes || "" : "";
+        if (tiktokState.connected) {
+            applyTikTokLiveMetrics();
+        }
+    }
+
+    function sameList(left, right) {
+        if (left.length !== right.length) {
+            return false;
+        }
+
+        return left.every((value, index) => value === right[index]);
+    }
+
+    function consumeYouTubeFlashStatus() {
+        if (!youtubeFlashStatus) {
+            return "";
+        }
+
+        const flash = youtubeFlashStatus;
+        youtubeFlashStatus = "";
+        history.replaceState({}, document.title, window.location.pathname);
+        return flash;
+    }
+
+    function consumeInstagramFlashStatus() {
+        if (!instagramFlashStatus) {
+            return "";
+        }
+
+        const flash = instagramFlashStatus;
+        instagramFlashStatus = "";
+        history.replaceState({}, document.title, window.location.pathname);
+        return flash;
+    }
+
+    function consumeTikTokFlashStatus() {
+        if (!tiktokFlashStatus) {
+            return "";
+        }
+
+        const flash = tiktokFlashStatus;
+        tiktokFlashStatus = "";
+        history.replaceState({}, document.title, window.location.pathname);
+        return flash;
+    }
+
+    function youtubeFlashMessage(status) {
+        const messages = {
+            connected: "YouTube connected. Live followers, viewers, and likes are ready for this browser session.",
+            cancelled: "YouTube connection was cancelled before it finished.",
+            setup: "YouTube login is not configured on the server yet.",
+            session: "The browser session expired before YouTube could finish connecting.",
+            state: "The YouTube login response could not be verified. Please try again.",
+            code: "Google did not return an authorization code. Please try again.",
+            token: "Google sign-in worked, but the token exchange failed.",
+            channel: "The app connected to Google, but could not load your YouTube channel."
+        };
+
+        return messages[status] || "";
+    }
+
+    function instagramFlashMessage(status) {
+        const messages = {
+            connected: "Instagram connected. Live followers and likes are ready for this browser session.",
+            cancelled: "Instagram connection was cancelled before it finished.",
+            setup: "Instagram login is not configured on the server yet.",
+            session: "The browser session expired before Instagram could finish connecting.",
+            state: "The Instagram login response could not be verified. Please try again.",
+            code: "Instagram did not return an authorization code. Please try again.",
+            token: "Instagram sign-in worked, but the token exchange failed.",
+            account: "The app connected to Instagram, but could not load the business account."
+        };
+
+        return messages[status] || "";
+    }
+
+    function tiktokFlashMessage(status) {
+        const messages = {
+            connected: "TikTok connected. Live followers, viewers, and likes are ready for this browser session.",
+            cancelled: "TikTok connection was cancelled before it finished.",
+            setup: "TikTok login is not configured on the server yet.",
+            session: "The browser session expired before TikTok could finish connecting.",
+            state: "The TikTok login response could not be verified. Please try again.",
+            code: "TikTok did not return an authorization code. Please try again.",
+            token: "TikTok sign-in worked, but the token exchange failed.",
+            account: "The app connected to TikTok, but could not load the account."
+        };
+
+        return messages[status] || "";
+    }
+
+    function updateYouTubeConnectionUI() {
+        const statusEl = document.getElementById("youtube-connect-status");
+        const noteEl = document.getElementById("youtube-connect-note");
+        const stepsEl = document.getElementById("youtube-connect-steps");
+        const badgeEl = document.getElementById("youtube-connect-badge");
+        const connectLink = document.getElementById("youtube-connect-link");
+        const disconnectButton = document.getElementById("youtube-disconnect");
+
+        if (!statusEl || !noteEl || !stepsEl || !badgeEl || !connectLink || !disconnectButton) {
+            return;
+        }
+
+        const flashMessage = youtubeFlashMessage(consumeYouTubeFlashStatus());
+        const defaultNote = "Live YouTube now powers followers, viewers, and likes. Likes are calculated by summing like counts across the channel's uploaded videos and are cached briefly so the display stays fast.";
+
+        if (!youtubeState.oauthConfigured) {
+            badgeEl.textContent = "SETUP NEEDED";
+            badgeEl.classList.remove("connected");
+            statusEl.textContent = flashMessage || "This setup is only for the app owner or whoever deploys the server. Normal users will just click Connect YouTube after setup is done.";
+            noteEl.textContent = "Server setup steps:";
+            stepsEl.hidden = false;
+            connectLink.classList.add("disabled");
+            connectLink.setAttribute("aria-disabled", "true");
+            connectLink.href = "#";
+            connectLink.textContent = "Connect YouTube";
+            disconnectButton.hidden = true;
+            return;
+        }
+
+        connectLink.classList.remove("disabled");
+        connectLink.removeAttribute("aria-disabled");
+        connectLink.href = "/auth/youtube/start";
+        stepsEl.hidden = true;
+
+        if (youtubeState.connected) {
+            badgeEl.textContent = "CONNECTED";
+            badgeEl.classList.add("connected");
+            statusEl.textContent = flashMessage || `${youtubeState.channelTitle || "Your YouTube channel"} is connected. Followers, viewers, and likes will use live channel numbers.`;
+            noteEl.textContent = `Only the person running the app had to do the Google setup. End users just click Connect YouTube. ${defaultNote}`;
+            connectLink.textContent = "Reconnect";
+            disconnectButton.hidden = false;
+            return;
+        }
+
+        badgeEl.textContent = "NOT CONNECTED";
+        badgeEl.classList.remove("connected");
+        statusEl.textContent = flashMessage || "Connect a YouTube account when you want the app to show real YouTube followers, viewers, and likes.";
+        noteEl.textContent = `The Google Cloud setup is already done on the server. End users only need to click Connect YouTube. ${defaultNote}`;
+        connectLink.textContent = "Connect YouTube";
+        disconnectButton.hidden = true;
+    }
+
+    function updateInstagramConnectionUI() {
+        const statusEl = document.getElementById("instagram-connect-status");
+        const noteEl = document.getElementById("instagram-connect-note");
+        const stepsEl = document.getElementById("instagram-connect-steps");
+        const badgeEl = document.getElementById("instagram-connect-badge");
+        const connectLink = document.getElementById("instagram-connect-link");
+        const disconnectButton = document.getElementById("instagram-disconnect");
+
+        if (!statusEl || !noteEl || !stepsEl || !badgeEl || !connectLink || !disconnectButton) {
+            return;
+        }
+
+        const flashMessage = instagramFlashMessage(consumeInstagramFlashStatus());
+        const defaultNote = "Live Instagram currently powers followers and likes for connected Business accounts. Views stays demo for now until Instagram insights are wired in.";
+
+        if (!instagramState.oauthConfigured) {
+            badgeEl.textContent = "SETUP NEEDED";
+            badgeEl.classList.remove("connected");
+            statusEl.textContent = flashMessage || "This setup is only for the app owner or whoever deploys the server. Normal users will just click Connect Instagram after setup is done.";
+            noteEl.textContent = "Server setup steps:";
+            stepsEl.hidden = false;
+            connectLink.classList.add("disabled");
+            connectLink.setAttribute("aria-disabled", "true");
+            connectLink.href = "#";
+            connectLink.textContent = "Connect Instagram";
+            disconnectButton.hidden = true;
+            return;
+        }
+
+        connectLink.classList.remove("disabled");
+        connectLink.removeAttribute("aria-disabled");
+        connectLink.href = "/auth/instagram/start";
+        stepsEl.hidden = true;
+
+        if (instagramState.connected) {
+            badgeEl.textContent = "CONNECTED";
+            badgeEl.classList.add("connected");
+            statusEl.textContent = flashMessage || `${instagramState.username || "Your Instagram Business account"} is connected. Followers and likes will use live account numbers.`;
+            noteEl.textContent = `Only the person running the app had to do the Meta setup. End users just click Connect Instagram. ${defaultNote}`;
+            connectLink.textContent = "Reconnect";
+            disconnectButton.hidden = false;
+            return;
+        }
+
+        badgeEl.textContent = "NOT CONNECTED";
+        badgeEl.classList.remove("connected");
+        statusEl.textContent = flashMessage || "Connect an Instagram Business account when you want the app to show real Instagram followers and likes.";
+        noteEl.textContent = `The Meta setup is already done on the server. End users only need to click Connect Instagram. ${defaultNote}`;
+        connectLink.textContent = "Connect Instagram";
+        disconnectButton.hidden = true;
+    }
+
+    function updateTikTokConnectionUI() {
+        const statusEl = document.getElementById("tiktok-connect-status");
+        const noteEl = document.getElementById("tiktok-connect-note");
+        const stepsEl = document.getElementById("tiktok-connect-steps");
+        const badgeEl = document.getElementById("tiktok-connect-badge");
+        const connectLink = document.getElementById("tiktok-connect-link");
+        const disconnectButton = document.getElementById("tiktok-disconnect");
+
+        if (!statusEl || !noteEl || !stepsEl || !badgeEl || !connectLink || !disconnectButton) {
+            return;
+        }
+
+        const flashMessage = tiktokFlashMessage(consumeTikTokFlashStatus());
+        const defaultNote = "Live TikTok powers followers, viewers, and likes. Views are calculated by summing view counts across the account's public videos and are cached briefly so the display stays fast.";
+
+        if (!tiktokState.oauthConfigured) {
+            badgeEl.textContent = "SETUP NEEDED";
+            badgeEl.classList.remove("connected");
+            statusEl.textContent = flashMessage || "This setup is only for the app owner or whoever deploys the server. Normal users will just click Connect TikTok after setup is done.";
+            noteEl.textContent = "Server setup steps:";
+            stepsEl.hidden = false;
+            connectLink.classList.add("disabled");
+            connectLink.setAttribute("aria-disabled", "true");
+            connectLink.href = "#";
+            connectLink.textContent = "Connect TikTok";
+            disconnectButton.hidden = true;
+            return;
+        }
+
+        connectLink.classList.remove("disabled");
+        connectLink.removeAttribute("aria-disabled");
+        connectLink.href = "/auth/tiktok/start";
+        stepsEl.hidden = true;
+
+        if (tiktokState.connected) {
+            badgeEl.textContent = "CONNECTED";
+            badgeEl.classList.add("connected");
+            statusEl.textContent = flashMessage || `${tiktokState.displayName || tiktokState.username || "Your TikTok account"} is connected. Followers, viewers, and likes will use live account numbers.`;
+            noteEl.textContent = `Only the person running the app had to do the TikTok developer setup. End users just click Connect TikTok. ${defaultNote}`;
+            connectLink.textContent = "Reconnect";
+            disconnectButton.hidden = false;
+            return;
+        }
+
+        badgeEl.textContent = "NOT CONNECTED";
+        badgeEl.classList.remove("connected");
+        statusEl.textContent = flashMessage || "Connect a TikTok account when you want the app to show real TikTok followers, viewers, and likes.";
+        noteEl.textContent = `The TikTok developer setup is already done on the server. End users only need to click Connect TikTok. ${defaultNote}`;
+        connectLink.textContent = "Connect TikTok";
+        disconnectButton.hidden = true;
+    }
+
+    function getChooserReadiness() {
+        const selectedCount = selectedPlatformKeys.size;
+        const selectedMetricCount = selectedTopMetricLabels.size;
+        const totalMetricCount = 1 + selectedMetricCount;
+        const youtubeSelected = selectedPlatformKeys.has("youtube");
+        const instagramSelected = selectedPlatformKeys.has("instagram");
+        const tiktokSelected = selectedPlatformKeys.has("tiktok");
+        const needsYouTubeConnection = youtubeSelected && (!youtubeState.oauthConfigured || !youtubeState.connected);
+        const needsInstagramConnection = instagramSelected && (!instagramState.oauthConfigured || !instagramState.connected);
+        const needsTikTokConnection = tiktokSelected && (!tiktokState.oauthConfigured || !tiktokState.connected);
+        const needsSocialConnection = needsYouTubeConnection || needsInstagramConnection || needsTikTokConnection;
+
+        return {
+            selectedCount,
+            selectedMetricCount,
+            totalMetricCount,
+            needsYouTubeConnection,
+            needsInstagramConnection,
+            needsTikTokConnection,
+            needsSocialConnection,
+            canRun: selectedCount >= minimumPlatformSelection && selectedMetricCount > 0 && !needsSocialConnection
+        };
+    }
+
+    function updateBoardPublishUI() {
+        const badgeEl = document.getElementById("board-publish-badge");
+        const statusEl = document.getElementById("board-publish-status");
+        const noteEl = document.getElementById("board-publish-note");
+        const linkEl = document.getElementById("board-public-link");
+        const publishButton = document.getElementById("publish-board");
+        const copyButton = document.getElementById("copy-board-link");
+
+        if (!badgeEl || !statusEl || !noteEl || !linkEl || !publishButton || !copyButton) {
+            return;
+        }
+
+        const readiness = getChooserReadiness();
+        publishButton.disabled = !readiness.canRun;
+        publishButton.textContent = boardState.exists ? "Update Link" : "Publish Link";
+
+        if (boardState.exists && boardState.publicUrl) {
+            badgeEl.textContent = "PUBLIC";
+            badgeEl.classList.add("connected");
+            statusEl.textContent = "This board now has a public read-only link. Visitors only see the live counter display.";
+            noteEl.textContent = boardState.publicViewerNote || "Your connected accounts stay private on this dashboard. Use the public link anywhere you want the wallboard to appear.";
+            linkEl.hidden = false;
+            linkEl.textContent = boardState.publicUrl;
+            linkEl.href = boardState.publicUrl;
+            copyButton.hidden = false;
+            return;
+        }
+
+        badgeEl.textContent = "PRIVATE";
+        badgeEl.classList.remove("connected");
+        statusEl.textContent = "Publish a public link after you choose platforms and metrics. Viewers on that link will never see connect buttons.";
+        noteEl.textContent = "This creator dashboard is private to the connected browser session. The public link is the stable page you share with everyone else.";
+        linkEl.hidden = true;
+        linkEl.textContent = "";
+        linkEl.href = "#";
+        copyButton.hidden = true;
+    }
+
+    function syncYouTubeRefreshLoop() {
+        if (youtubeRefreshTimer) {
+            clearInterval(youtubeRefreshTimer);
+            youtubeRefreshTimer = null;
+        }
+
+        if (!youtubeState.connected) {
+            return;
+        }
+
+        youtubeRefreshTimer = setInterval(() => {
+            refreshYouTubeConnection({ includeStats: true, silent: true });
+        }, socialRefreshIntervalMs);
+    }
+
+    function syncInstagramRefreshLoop() {
+        if (instagramRefreshTimer) {
+            clearInterval(instagramRefreshTimer);
+            instagramRefreshTimer = null;
+        }
+
+        if (!instagramState.connected) {
+            return;
+        }
+
+        instagramRefreshTimer = setInterval(() => {
+            refreshInstagramConnection({ includeStats: true, silent: true });
+        }, socialRefreshIntervalMs);
+    }
+
+    function syncTikTokRefreshLoop() {
+        if (tiktokRefreshTimer) {
+            clearInterval(tiktokRefreshTimer);
+            tiktokRefreshTimer = null;
+        }
+
+        if (!tiktokState.connected) {
+            return;
+        }
+
+        tiktokRefreshTimer = setInterval(() => {
+            refreshTikTokConnection({ includeStats: true, silent: true });
+        }, socialRefreshIntervalMs);
+    }
+
+    async function refreshYouTubeConnection({ includeStats = false, silent = false } = {}) {
+        try {
+            const statusResponse = await fetch("/api/youtube/status", {
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            const statusData = await statusResponse.json();
+
+            youtubeState.oauthConfigured = Boolean(statusData.oauthConfigured);
+            youtubeState.connected = Boolean(statusData.connected);
+            youtubeState.channelId = statusData.channelId || "";
+            youtubeState.channelTitle = statusData.channelTitle || "";
+            youtubeState.channelThumbnailUrl = statusData.channelThumbnailUrl || "";
+            youtubeState.error = statusData.error || "";
+
+            if (!youtubeState.connected) {
+                youtubeState.subscriberCount = "";
+                youtubeState.viewCount = "";
+                youtubeState.likeCount = "";
+                resetYouTubePrototypeMetrics();
+                updateYouTubeConnectionUI();
+                updateChooserState();
+                syncYouTubeRefreshLoop();
+                return;
+            }
+
+            if (includeStats) {
+                const statsResponse = await fetch("/api/youtube/stats", {
+                    headers: { "Accept": "application/json" },
+                    cache: "no-store"
+                });
+                const statsData = await statsResponse.json();
+
+                if (!statsResponse.ok || !statsData.connected) {
+                    youtubeState.connected = false;
+                    youtubeState.error = statsData.error || "YouTube stats are unavailable right now.";
+                    youtubeState.subscriberCount = "";
+                    youtubeState.viewCount = "";
+                    youtubeState.likeCount = "";
+                    resetYouTubePrototypeMetrics();
+                } else {
+                    youtubeState.connected = true;
+                    youtubeState.channelId = statsData.channelId || youtubeState.channelId;
+                    youtubeState.channelTitle = statsData.channelTitle || youtubeState.channelTitle;
+                    youtubeState.channelThumbnailUrl = statsData.channelThumbnailUrl || youtubeState.channelThumbnailUrl;
+                    youtubeState.subscriberCount = statsData.subscriberCount || "";
+                    youtubeState.viewCount = statsData.viewCount || "";
+                    youtubeState.likeCount = statsData.likeCount || "";
+                    youtubeState.error = "";
+                    applyYouTubeLiveMetrics();
+                }
+            }
+        } catch (error) {
+            youtubeState.error = error instanceof Error ? error.message : String(error);
+            if (!silent && !youtubeState.connected) {
+                resetYouTubePrototypeMetrics();
+            }
+        }
+
+        updateYouTubeConnectionUI();
+        updateChooserState();
+        syncYouTubeRefreshLoop();
+    }
+
+    async function disconnectYouTube() {
+        await fetch("/auth/youtube/disconnect", {
+            method: "POST",
+            headers: { "Accept": "application/json" }
+        });
+        await refreshYouTubeConnection({ includeStats: false });
+    }
+
+    async function refreshInstagramConnection({ includeStats = false, silent = false } = {}) {
+        try {
+            const statusResponse = await fetch("/api/instagram/status", {
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            const statusData = await statusResponse.json();
+
+            instagramState.oauthConfigured = Boolean(statusData.oauthConfigured);
+            instagramState.connected = Boolean(statusData.connected);
+            instagramState.userId = statusData.userId || "";
+            instagramState.username = statusData.username || "";
+            instagramState.profilePictureUrl = statusData.profilePictureUrl || "";
+            instagramState.error = statusData.error || "";
+
+            if (!instagramState.connected) {
+                instagramState.followersCount = "";
+                instagramState.likeCount = "";
+                resetInstagramPrototypeMetrics();
+                updateInstagramConnectionUI();
+                updateChooserState();
+                syncInstagramRefreshLoop();
+                return;
+            }
+
+            if (includeStats) {
+                const statsResponse = await fetch("/api/instagram/stats", {
+                    headers: { "Accept": "application/json" },
+                    cache: "no-store"
+                });
+                const statsData = await statsResponse.json();
+
+                if (!statsResponse.ok || !statsData.connected) {
+                    instagramState.connected = false;
+                    instagramState.error = statsData.error || "Instagram stats are unavailable right now.";
+                    instagramState.followersCount = "";
+                    instagramState.likeCount = "";
+                    resetInstagramPrototypeMetrics();
+                } else {
+                    instagramState.connected = true;
+                    instagramState.userId = statsData.userId || instagramState.userId;
+                    instagramState.username = statsData.username || instagramState.username;
+                    instagramState.profilePictureUrl = statsData.profilePictureUrl || instagramState.profilePictureUrl;
+                    instagramState.followersCount = statsData.followersCount || "";
+                    instagramState.likeCount = statsData.likeCount || "";
+                    instagramState.error = "";
+                    applyInstagramLiveMetrics();
+                }
+            }
+        } catch (error) {
+            instagramState.error = error instanceof Error ? error.message : String(error);
+            if (!silent && !instagramState.connected) {
+                resetInstagramPrototypeMetrics();
+            }
+        }
+
+        updateInstagramConnectionUI();
+        updateChooserState();
+        syncInstagramRefreshLoop();
+    }
+
+    async function disconnectInstagram() {
+        await fetch("/auth/instagram/disconnect", {
+            method: "POST",
+            headers: { "Accept": "application/json" }
+        });
+        await refreshInstagramConnection({ includeStats: false });
+    }
+
+    async function refreshTikTokConnection({ includeStats = false, silent = false } = {}) {
+        try {
+            const statusResponse = await fetch("/api/tiktok/status", {
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            const statusData = await statusResponse.json();
+
+            tiktokState.oauthConfigured = Boolean(statusData.oauthConfigured);
+            tiktokState.connected = Boolean(statusData.connected);
+            tiktokState.openId = statusData.openId || "";
+            tiktokState.displayName = statusData.displayName || "";
+            tiktokState.username = statusData.username || "";
+            tiktokState.avatarUrl = statusData.avatarUrl || "";
+            tiktokState.error = statusData.error || "";
+
+            if (!tiktokState.connected) {
+                tiktokState.followersCount = "";
+                tiktokState.viewCount = "";
+                tiktokState.likeCount = "";
+                resetTikTokPrototypeMetrics();
+                updateTikTokConnectionUI();
+                updateChooserState();
+                syncTikTokRefreshLoop();
+                return;
+            }
+
+            if (includeStats) {
+                const statsResponse = await fetch("/api/tiktok/stats", {
+                    headers: { "Accept": "application/json" },
+                    cache: "no-store"
+                });
+                const statsData = await statsResponse.json();
+
+                if (!statsResponse.ok || !statsData.connected) {
+                    tiktokState.connected = false;
+                    tiktokState.error = statsData.error || "TikTok stats are unavailable right now.";
+                    tiktokState.followersCount = "";
+                    tiktokState.viewCount = "";
+                    tiktokState.likeCount = "";
+                    resetTikTokPrototypeMetrics();
+                } else {
+                    tiktokState.connected = true;
+                    tiktokState.openId = statsData.openId || tiktokState.openId;
+                    tiktokState.displayName = statsData.displayName || tiktokState.displayName;
+                    tiktokState.username = statsData.username || tiktokState.username;
+                    tiktokState.avatarUrl = statsData.avatarUrl || tiktokState.avatarUrl;
+                    tiktokState.followersCount = statsData.followersCount || "";
+                    tiktokState.viewCount = statsData.viewCount || "";
+                    tiktokState.likeCount = statsData.likeCount || "";
+                    tiktokState.error = "";
+                    applyTikTokLiveMetrics();
+                }
+            }
+        } catch (error) {
+            tiktokState.error = error instanceof Error ? error.message : String(error);
+            if (!silent && !tiktokState.connected) {
+                resetTikTokPrototypeMetrics();
+            }
+        }
+
+        updateTikTokConnectionUI();
+        updateChooserState();
+        syncTikTokRefreshLoop();
+    }
+
+    async function disconnectTikTok() {
+        await fetch("/auth/tiktok/disconnect", {
+            method: "POST",
+            headers: { "Accept": "application/json" }
+        });
+        await refreshTikTokConnection({ includeStats: false });
+    }
+
+    async function loadMyBoard() {
+        try {
+            const response = await fetch("/api/boards/me", {
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            const data = await response.json();
+
+            boardState.exists = Boolean(data.exists);
+            boardState.slug = data.slug || "";
+            boardState.publicUrl = data.publicUrl || "";
+            boardState.platformKeys = Array.isArray(data.platformKeys) ? data.platformKeys : [];
+            boardState.topMetricLabels = Array.isArray(data.topMetricLabels) ? data.topMetricLabels : [];
+            boardState.updatedAt = data.updatedAt || "";
+            boardState.publicViewerNote = data.publicViewerNote || "";
+            boardState.error = data.error || "";
+
+            selectedPlatformKeys.clear();
+            boardState.platformKeys.forEach(key => selectedPlatformKeys.add(key));
+            selectedTopMetricLabels.clear();
+            boardState.topMetricLabels.forEach(label => selectedTopMetricLabels.add(label));
+        } catch (error) {
+            boardState.error = error instanceof Error ? error.message : String(error);
+        }
+
+        updateBoardPublishUI();
+        updateChooserState();
+    }
+
+    async function publishCurrentBoard() {
+        const readiness = getChooserReadiness();
+        if (!readiness.canRun) {
+            updateChooserState();
+            return;
+        }
+
+        if (selectedPlatformKeys.has("instagram")) {
+            await refreshInstagramConnection({ includeStats: true });
+            if (!instagramState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        if (selectedPlatformKeys.has("tiktok")) {
+            await refreshTikTokConnection({ includeStats: true });
+            if (!tiktokState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        if (selectedPlatformKeys.has("youtube")) {
+            await refreshYouTubeConnection({ includeStats: true });
+            if (!youtubeState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        const response = await fetch("/api/boards/publish", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                platformKeys: Array.from(selectedPlatformKeys),
+                topMetricLabels: Array.from(selectedTopMetricLabels)
+            })
+        });
+        const data = await response.json();
+
+        boardState.exists = Boolean(data.exists);
+        boardState.slug = data.slug || "";
+        boardState.publicUrl = data.publicUrl || "";
+        boardState.platformKeys = Array.isArray(data.platformKeys) ? data.platformKeys : [];
+        boardState.topMetricLabels = Array.isArray(data.topMetricLabels) ? data.topMetricLabels : [];
+        boardState.updatedAt = data.updatedAt || "";
+        boardState.publicViewerNote = data.publicViewerNote || "";
+        boardState.error = data.error || "";
+
+        if (boardState.exists) {
+            selectedPlatformKeys.clear();
+            boardState.platformKeys.forEach(key => selectedPlatformKeys.add(key));
+            selectedTopMetricLabels.clear();
+            boardState.topMetricLabels.forEach(label => selectedTopMetricLabels.add(label));
+        }
+
+        updateBoardPublishUI();
+        updateChooserState();
+    }
+
+    async function copyPublicBoardLink() {
+        if (!boardState.publicUrl) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(boardState.publicUrl);
+            const copyButton = document.getElementById("copy-board-link");
+            if (!copyButton) {
+                return;
+            }
+
+            const previousText = copyButton.textContent;
+            copyButton.textContent = "Copied";
+            setTimeout(() => {
+                copyButton.textContent = previousText;
+            }, 1200);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function showPublicBoardMessage(title, subtitle) {
+        const chooser = document.getElementById("chooser");
+        const display = document.getElementById("display");
+        if (rotationTimer) {
+            clearTimeout(rotationTimer);
+        }
+        if (publicBoardRefreshTimer) {
+            clearInterval(publicBoardRefreshTimer);
+            publicBoardRefreshTimer = null;
+        }
+
+        display.hidden = true;
+        chooser.hidden = false;
+        chooser.innerHTML = `
+            <div class="chooser-header">
+                <h1 class="chooser-title">${title}</h1>
+                <p class="chooser-subtitle">${subtitle}</p>
+            </div>
+        `;
+    }
+
+    async function refreshPublicBoard({ silent = false } = {}) {
+        try {
+            const response = await fetch(`/api/boards/${encodeURIComponent(publicBoardSlug)}`, {
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                showPublicBoardMessage("Board Unavailable", data.error || "This public board could not be loaded.");
+                return;
+            }
+
+            applyPublicBoardPayload(data);
+
+            const nextPlatformKeys = Array.isArray(data.platformKeys) ? data.platformKeys : [];
+            const nextTopMetricLabels = Array.isArray(data.topMetricLabels) ? data.topMetricLabels : [];
+            const currentPlatformKeys = activePlatforms.map(({ key }) => key);
+            const currentMetricLabels = activeTopRowMetrics.map(({ metricLabel }) => metricLabel);
+
+            if (document.getElementById("display").hidden || !sameList(currentPlatformKeys, nextPlatformKeys) || !sameList(currentMetricLabels, nextTopMetricLabels)) {
+                startConfiguredDisplay(nextPlatformKeys, nextTopMetricLabels);
+            }
+        } catch (error) {
+            if (!silent) {
+                showPublicBoardMessage("Board Unavailable", error instanceof Error ? error.message : String(error));
+            }
+        }
+    }
+
+    function syncPublicBoardRefreshLoop() {
+        if (publicBoardRefreshTimer) {
+            clearInterval(publicBoardRefreshTimer);
+            publicBoardRefreshTimer = null;
+        }
+
+        if (!isPublicBoardMode) {
+            return;
+        }
+
+        publicBoardRefreshTimer = setInterval(() => {
+            refreshPublicBoard({ silent: true });
+        }, socialRefreshIntervalMs);
+    }
+
+    function setBoardText(board, nextText) {
+        board.dataset.currentText = nextText;
+        board.querySelector(".flip-static-top .flip-char").textContent = nextText;
+        board.querySelector(".flip-static-bottom .flip-char").textContent = nextText;
+        board.querySelector(".flip-top .flip-char").textContent = nextText;
+        board.querySelector(".flip-bottom .flip-char").textContent = nextText;
+    }
+
+    function setBoardBlankState(board, isBlank) {
+        board.classList.toggle("blank-slot", isBlank);
+    }
+
+    function flipBoardTo(board, nextText, animate = true, delayMs = 0, forceFlip = false) {
+        const currentText = board.dataset.currentText || "";
+        const nextIsBlank = nextText.length === 0;
+
+        if (!animate) {
+            setBoardBlankState(board, nextIsBlank);
+            setBoardText(board, nextText);
+            return 0;
+        }
+
+        if (currentText === nextText && !forceFlip) {
+            setBoardBlankState(board, nextIsBlank);
+            setBoardText(board, nextText);
+            return 0;
+        }
+
+        const top = board.querySelector(".flip-top .flip-char");
+        const bottom = board.querySelector(".flip-bottom .flip-char");
+        const staticTop = board.querySelector(".flip-static-top .flip-char");
+        const staticBottom = board.querySelector(".flip-static-bottom .flip-char");
+
+        top.textContent = currentText;
+        bottom.textContent = nextText;
+        staticTop.textContent = currentText;
+        staticBottom.textContent = currentText;
+
+        const totalDuration = boardFlipTopDurationMs + boardFlipBottomDurationMs;
+
+        if (board._flipTimers) {
+            board._flipTimers.forEach(clearTimeout);
+        }
+
+        board._flipTimers = [];
+
+        board._flipTimers.push(setTimeout(() => {
+            if (!nextIsBlank) {
+                setBoardBlankState(board, false);
+            }
+            board.classList.remove("flipping");
+            void board.offsetWidth;
+            board.classList.add("flipping");
+
+            board._flipTimers.push(setTimeout(() => {
+                staticTop.textContent = nextText;
+                staticBottom.textContent = nextText;
+                board.dataset.currentText = nextText;
+            }, boardFlipTopDurationMs));
+
+            board._flipTimers.push(setTimeout(() => {
+                board.classList.remove("flipping");
+                setBoardBlankState(board, nextIsBlank);
+                top.textContent = nextText;
+                bottom.textContent = nextText;
+                board._flipTimers = [];
+            }, totalDuration));
+        }, delayMs));
+
+        return delayMs + totalDuration;
+    }
+
+    function animateFlipBoard(counter, nextText, animate = true, baseDelay = 0, forceFlip = false) {
+        const board = counter.querySelector(".flip-board");
+        return flipBoardTo(board, nextText, animate, baseDelay, forceFlip);
     }
 
     function clearNumber(counter) {
@@ -364,12 +2085,16 @@
     }
 
     function clearLabel(counter) {
-        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
+        const board = counter.querySelector(".flip-board");
 
-        windows.forEach(windowEl => {
-            setWheelBlankState(windowEl, true);
-            setWheel(windowEl, labelChars, " ", false);
-        });
+        if (board._flipTimers) {
+            board._flipTimers.forEach(clearTimeout);
+            board._flipTimers = [];
+        }
+
+        board.classList.remove("flipping");
+        setBoardBlankState(board, true);
+        setBoardText(board, "");
     }
 
     function showNumber(counter, value, animate = true, baseDelay = 0) {
@@ -378,46 +2103,16 @@
             .slice(-wheelCount)
             .padStart(wheelCount, " ");
 
-        return animateCounter(counter, digitChars, clean.split(""), animate, baseDelay, 0);
+        return animateWheelCounter(counter, digitChars, clean.split(""), animate, baseDelay, 0);
     }
 
-    function showLabel(counter, value, animate = true, baseDelay = 0) {
+    function showLabel(counter, value, animate = true, baseDelay = 0, forceFlip = false) {
         const clean = String(value)
             .toUpperCase()
             .replace(/[^A-Z ]/g, "")
-            .slice(-wheelCount)
-            .padStart(wheelCount, " ");
+            .trim();
 
-        const windows = Array.from(counter.querySelectorAll(".wheel-window"));
-        const nextChars = clean.split("");
-        let cascadeDelay = baseDelay;
-
-        nextChars.forEach((char, index) => {
-            if (char === " ") {
-                setWheelBlankState(windows[index], true);
-                setWheel(windows[index], labelChars, char, false);
-            } else {
-                setWheelBlankState(windows[index], false);
-            }
-        });
-
-        for (let index = nextChars.length - 1; index >= 0; index--) {
-            if (nextChars[index] === " ") {
-                continue;
-            }
-
-            const duration = setWheel(
-                windows[index],
-                labelChars,
-                nextChars[index],
-                animate,
-                cascadeDelay,
-                6
-            );
-            cascadeDelay += animate ? duration : 0;
-        }
-
-        return cascadeDelay;
+        return animateFlipBoard(counter, clean, animate, baseDelay, forceFlip);
     }
 
     function createLogoReel(src = "") {
@@ -463,58 +2158,382 @@
         });
     }
 
+    function createPlatformOption(platform) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "platform-option";
+        option.dataset.platformKey = platform.key;
+        option.innerHTML = `
+            <img class="platform-option-logo" src="${platform.logo}" alt="${platform.name} logo">
+            <span class="platform-option-name">${platform.name}</span>
+            <span class="platform-option-mark">✓</span>
+        `;
+        option.addEventListener("click", () => {
+            if (selectedPlatformKeys.has(platform.key)) {
+                selectedPlatformKeys.delete(platform.key);
+            } else {
+                selectedPlatformKeys.add(platform.key);
+            }
+
+            updateChooserState();
+        });
+
+        return option;
+    }
+
+    function createMetricOption(metric, { locked = false } = {}) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = `metric-option${locked ? " locked" : ""}`;
+        option.dataset.metricLabel = metric.metricLabel;
+        option.innerHTML = `
+            <span class="metric-option-mark">✓</span>
+            <span class="metric-option-name">${metric.displayLabel}</span>
+            <span class="metric-option-note">${locked ? "Required on the second row" : "Can flip on the first row"}</span>
+        `;
+
+        if (!locked) {
+            option.addEventListener("click", () => {
+                if (selectedTopMetricLabels.has(metric.metricLabel)) {
+                    selectedTopMetricLabels.delete(metric.metricLabel);
+                } else {
+                    selectedTopMetricLabels.add(metric.metricLabel);
+                }
+
+                updateChooserState();
+            });
+        }
+
+        return option;
+    }
+
+    function buildChooser() {
+        const chooser = document.getElementById("chooser");
+        chooser.innerHTML = `
+            <div class="chooser-header">
+                <h1 class="chooser-title">Creator Dashboard</h1>
+                <p class="chooser-subtitle">Choose what your public board should show. Followers is always included on the second row.</p>
+            </div>
+            <section class="chooser-section">
+                <h2 class="chooser-section-title">Platforms</h2>
+                <div class="platform-grid"></div>
+            </section>
+            <section class="chooser-section">
+                <h2 class="chooser-section-title">Metrics</h2>
+                <div class="metric-grid"></div>
+            </section>
+            <section class="chooser-section">
+                <h2 class="chooser-section-title">Live Account Connections</h2>
+                <div class="youtube-connect-card">
+                    <div class="youtube-connect-copy">
+                        <div class="youtube-connect-head">
+                            <p class="youtube-connect-title">Connect an Instagram Business account</p>
+                            <span id="instagram-connect-badge" class="youtube-connect-badge">CHECKING</span>
+                        </div>
+                        <p id="instagram-connect-status" class="youtube-connect-status">Checking Instagram connection status...</p>
+                        <p id="instagram-connect-note" class="youtube-connect-note"></p>
+                        <ol id="instagram-connect-steps" class="youtube-connect-steps" hidden>
+                            <li>Create a Meta Business app and add the Instagram product.</li>
+                            <li>Use Instagram API with Instagram Login for Business accounts.</li>
+                            <li>Add the redirect URI <code>http://localhost:8080/auth/instagram/callback</code> for local development.</li>
+                            <li>Set <code>INSTAGRAM_CLIENT_ID</code>, <code>INSTAGRAM_CLIENT_SECRET</code>, and <code>INSTAGRAM_REDIRECT_URL</code> on the server, then restart the app.</li>
+                        </ol>
+                    </div>
+                    <div class="youtube-connect-actions">
+                        <a id="instagram-connect-link" class="connect-button" href="/auth/instagram/start">Connect Instagram</a>
+                        <button id="instagram-disconnect" class="secondary-button" type="button" hidden>Disconnect</button>
+                    </div>
+                </div>
+                <div class="youtube-connect-card">
+                    <div class="youtube-connect-copy">
+                        <div class="youtube-connect-head">
+                            <p class="youtube-connect-title">Connect a TikTok account</p>
+                            <span id="tiktok-connect-badge" class="youtube-connect-badge">CHECKING</span>
+                        </div>
+                        <p id="tiktok-connect-status" class="youtube-connect-status">Checking TikTok connection status...</p>
+                        <p id="tiktok-connect-note" class="youtube-connect-note"></p>
+                        <ol id="tiktok-connect-steps" class="youtube-connect-steps" hidden>
+                            <li>Create a TikTok developer app and add Login Kit for Web.</li>
+                            <li>Add the scopes <code>user.info.profile</code>, <code>user.info.stats</code>, and <code>video.list</code> to your app.</li>
+                            <li>Add an absolute HTTPS redirect URI like <code>https://counter.yourdomain.com/auth/tiktok/callback</code> or a tunnel URL for local testing.</li>
+                            <li>Set <code>TIKTOK_CLIENT_KEY</code>, <code>TIKTOK_CLIENT_SECRET</code>, and <code>TIKTOK_REDIRECT_URL</code> on the server, then restart the app.</li>
+                        </ol>
+                    </div>
+                    <div class="youtube-connect-actions">
+                        <a id="tiktok-connect-link" class="connect-button" href="/auth/tiktok/start">Connect TikTok</a>
+                        <button id="tiktok-disconnect" class="secondary-button" type="button" hidden>Disconnect</button>
+                    </div>
+                </div>
+                <div class="youtube-connect-card">
+                    <div class="youtube-connect-copy">
+                        <div class="youtube-connect-head">
+                            <p class="youtube-connect-title">Connect a YouTube channel</p>
+                            <span id="youtube-connect-badge" class="youtube-connect-badge">CHECKING</span>
+                        </div>
+                        <p id="youtube-connect-status" class="youtube-connect-status">Checking YouTube connection status...</p>
+                        <p id="youtube-connect-note" class="youtube-connect-note"></p>
+                        <ol id="youtube-connect-steps" class="youtube-connect-steps" hidden>
+                            <li>Enable YouTube Data API v3 in Google Cloud.</li>
+                            <li>Create an OAuth client of type Web application.</li>
+                            <li>Add the redirect URI <code>http://localhost:8080/auth/youtube/callback</code> for local development.</li>
+                            <li>Set <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, and <code>YOUTUBE_REDIRECT_URL</code> on the server, then restart the app.</li>
+                        </ol>
+                    </div>
+                    <div class="youtube-connect-actions">
+                        <a id="youtube-connect-link" class="connect-button" href="/auth/youtube/start">Connect YouTube</a>
+                        <button id="youtube-disconnect" class="secondary-button" type="button" hidden>Disconnect</button>
+                    </div>
+                </div>
+            </section>
+            <section class="chooser-section">
+                <h2 class="chooser-section-title">Public Board</h2>
+                <div class="youtube-connect-card">
+                    <div class="youtube-connect-copy">
+                        <div class="youtube-connect-head">
+                            <p class="youtube-connect-title">Publish a read-only link</p>
+                            <span id="board-publish-badge" class="youtube-connect-badge">PRIVATE</span>
+                        </div>
+                        <p id="board-publish-status" class="youtube-connect-status">Publish a board and share the link. Viewers on that link will only see the counter display.</p>
+                        <p id="board-publish-note" class="youtube-connect-note">Your connected creator accounts stay private on this dashboard.</p>
+                        <a id="board-public-link" class="board-public-link" href="#" target="_blank" rel="noopener" hidden></a>
+                    </div>
+                    <div class="youtube-connect-actions">
+                        <button id="publish-board" class="secondary-button" type="button">Publish Link</button>
+                        <button id="copy-board-link" class="connect-button" type="button" hidden>Copy Link</button>
+                    </div>
+                </div>
+            </section>
+            <div class="chooser-footer">
+                <p class="chooser-hint"></p>
+                <button id="start-display" class="start-button" type="button" disabled>Preview Display</button>
+            </div>
+        `;
+
+        const platformGrid = chooser.querySelector(".platform-grid");
+        platforms.forEach(platform => {
+            platformGrid.appendChild(createPlatformOption(platform));
+        });
+
+        const metricGrid = chooser.querySelector(".metric-grid");
+        metricGrid.appendChild(createMetricOption(
+            { metricLabel: followerMetricLabel, displayLabel: followerMetricLabel },
+            { locked: true }
+        ));
+        topRowMetricOptions.forEach(metric => {
+            metricGrid.appendChild(createMetricOption(metric));
+        });
+
+        chooser.querySelector("#youtube-disconnect").addEventListener("click", () => {
+            disconnectYouTube();
+        });
+        chooser.querySelector("#instagram-disconnect").addEventListener("click", () => {
+            disconnectInstagram();
+        });
+        chooser.querySelector("#tiktok-disconnect").addEventListener("click", () => {
+            disconnectTikTok();
+        });
+        chooser.querySelector("#publish-board").addEventListener("click", publishCurrentBoard);
+        chooser.querySelector("#copy-board-link").addEventListener("click", copyPublicBoardLink);
+        chooser.querySelector("#start-display").addEventListener("click", startDisplay);
+        updateInstagramConnectionUI();
+        updateTikTokConnectionUI();
+        updateYouTubeConnectionUI();
+        updateBoardPublishUI();
+        updateChooserState();
+    }
+
+    function updateChooserState() {
+        const chooser = document.getElementById("chooser");
+        if (!chooser || chooser.hidden) {
+            return;
+        }
+
+        const readiness = getChooserReadiness();
+        const hint = chooser.querySelector(".chooser-hint");
+        const startButton = chooser.querySelector("#start-display");
+
+        chooser.querySelectorAll(".platform-option").forEach(option => {
+            option.classList.toggle("selected", selectedPlatformKeys.has(option.dataset.platformKey));
+        });
+
+        chooser.querySelectorAll(".metric-option").forEach(option => {
+            const isFollower = option.dataset.metricLabel === followerMetricLabel;
+            option.classList.toggle("selected", isFollower || selectedTopMetricLabels.has(option.dataset.metricLabel));
+        });
+
+        if (readiness.canRun) {
+            const metricSummary = Array.from(topRowMetricOptions)
+                .filter(({ metricLabel }) => selectedTopMetricLabels.has(metricLabel))
+                .map(({ displayLabel }) => displayLabel)
+                .join(" and ");
+            hint.textContent = `${readiness.selectedCount} platform${readiness.selectedCount === 1 ? "" : "s"} selected. ${readiness.totalMetricCount} metrics ready: followers plus ${metricSummary}.`;
+            hint.classList.add("ready");
+            startButton.disabled = false;
+        } else {
+            const needsPlatforms = readiness.selectedCount < minimumPlatformSelection;
+            const needsMetrics = readiness.selectedMetricCount === 0;
+
+            if (readiness.needsYouTubeConnection) {
+                hint.textContent = youtubeState.oauthConfigured
+                    ? "Connect YouTube to continue because YouTube is selected for this display."
+                    : "YouTube is selected, but the server is missing its Google OAuth setup.";
+            } else if (readiness.needsInstagramConnection) {
+                hint.textContent = instagramState.oauthConfigured
+                    ? "Connect Instagram to continue because Instagram is selected for this display."
+                    : "Instagram is selected, but the server is missing its Meta OAuth setup.";
+            } else if (readiness.needsTikTokConnection) {
+                hint.textContent = tiktokState.oauthConfigured
+                    ? "Connect TikTok to continue because TikTok is selected for this display."
+                    : "TikTok is selected, but the server is missing its TikTok developer setup.";
+            } else if (needsPlatforms && needsMetrics) {
+                const remaining = minimumPlatformSelection - readiness.selectedCount;
+                hint.textContent = `Choose ${remaining} platform${remaining === 1 ? "" : "s"} and at least one more metric so the display has two metrics total.`;
+            } else if (needsPlatforms) {
+                const remaining = minimumPlatformSelection - readiness.selectedCount;
+                hint.textContent = `Choose ${remaining} more platform${remaining === 1 ? "" : "s"} to continue.`;
+            } else {
+                hint.textContent = "Choose at least one more metric: viewers, likes, or both. Followers is already included.";
+            }
+
+            hint.classList.remove("ready");
+            startButton.disabled = true;
+        }
+
+        updateBoardPublishUI();
+    }
+
+    async function startDisplay() {
+        if (selectedPlatformKeys.size < minimumPlatformSelection || selectedTopMetricLabels.size === 0) {
+            return;
+        }
+
+        if (selectedPlatformKeys.has("instagram")) {
+            await refreshInstagramConnection({ includeStats: true });
+            if (!instagramState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        if (selectedPlatformKeys.has("tiktok")) {
+            await refreshTikTokConnection({ includeStats: true });
+            if (!tiktokState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        if (selectedPlatformKeys.has("youtube")) {
+            await refreshYouTubeConnection({ includeStats: true });
+            if (!youtubeState.connected) {
+                updateChooserState();
+                return;
+            }
+        }
+
+        startConfiguredDisplay(Array.from(selectedPlatformKeys), Array.from(selectedTopMetricLabels));
+    }
+
+    function startConfiguredDisplay(platformKeys, topMetricLabels) {
+        activePlatforms = platforms.filter(({ key }) => platformKeys.includes(key));
+        activeTopRowMetrics = topRowMetricOptions.filter(({ metricLabel }) => topMetricLabels.includes(metricLabel));
+        currentPlatformIndex = 0;
+        currentRotatingMetricIndex = 0;
+
+        if (rotationTimer) {
+            clearTimeout(rotationTimer);
+        }
+
+        document.getElementById("chooser").hidden = true;
+        document.getElementById("display").hidden = false;
+
+        buildDisplay();
+        renderPlatform();
+        scheduleNextRotation(resultHoldMs);
+    }
+
     function buildDisplay() {
         const display = document.getElementById("display");
         display.innerHTML = "";
 
-        display.appendChild(createLogoReel(platforms[0].logo));
+        if (activePlatforms.length === 0) {
+            return;
+        }
 
-        const numberRow = document.createElement("div");
-        numberRow.className = "metric-row number-row";
-        numberRow.appendChild(createCounter("value-counter", wheelCount, digitChars, " "));
+        display.appendChild(createLogoReel(activePlatforms[0].logo));
 
-        const labelRow = document.createElement("div");
-        labelRow.className = "metric-row label-row";
-        labelRow.appendChild(createCounter("label-counter", wheelCount, labelChars, " "));
+        const primaryRow = document.createElement("div");
+        primaryRow.className = "metric-row primary-row";
+        primaryRow.appendChild(createWheelCounter("value-counter active-value-counter", wheelCount, digitChars, " "));
+        primaryRow.appendChild(createLabelCounter(""));
 
-        display.appendChild(numberRow);
-        display.appendChild(labelRow);
+        const secondaryRow = document.createElement("div");
+        secondaryRow.className = "metric-row secondary-row";
+        secondaryRow.appendChild(createWheelCounter("value-counter follower-value-counter", wheelCount, digitChars, " "));
+        secondaryRow.appendChild(createLabelCounter(""));
+
+        display.appendChild(primaryRow);
+        display.appendChild(secondaryRow);
     }
 
-    function renderPlatform(animate = false) {
-        const platform = platforms[currentPlatformIndex];
-        const metric = platform.metrics[currentMetricIndex];
-        const display = document.getElementById("display");
-        const numberRow = document.querySelector(".number-row");
-        const labelRow = document.querySelector(".label-row");
-        const labelCounter = labelRow.querySelector(".label-counter");
-        const valueCounter = numberRow.querySelector(".value-counter");
-
-        if (!animate) {
-            changeLogo(display, platform.logo, false);
-            showNumber(valueCounter, metric.value, false);
-            showLabel(labelCounter, metric.label, false);
+    function renderPlatform({ animate = false, platformChanged = false } = {}) {
+        if (activePlatforms.length === 0 || activeTopRowMetrics.length === 0) {
             return 0;
         }
 
-        changeLogo(display, platform.logo, false);
-        clearNumber(valueCounter);
-        clearLabel(labelCounter);
+        const platform = activePlatforms[currentPlatformIndex];
+        const rotatingMetric = activeTopRowMetrics[currentRotatingMetricIndex];
+        const activeMetricValue = getMetricValue(platform, rotatingMetric.metricLabel);
+        const followerValue = getMetricValue(platform, followerMetricLabel);
+        const display = document.getElementById("display");
+        const primaryRow = document.querySelector(".primary-row");
+        const secondaryRow = document.querySelector(".secondary-row");
+        const labelCounter = primaryRow.querySelector(".label-counter");
+        const activeValueCounter = primaryRow.querySelector(".active-value-counter");
+        const followerCounter = secondaryRow.querySelector(".follower-value-counter");
+        const followerLabelCounter = secondaryRow.querySelector(".label-counter");
 
-        const numberFinishedAt = showNumber(valueCounter, metric.value, true, blankPauseMs);
-        const labelFinishedAt = showLabel(labelCounter, metric.label, true, numberFinishedAt);
+        if (!animate) {
+            changeLogo(display, platform.logo, false);
+            showLabel(labelCounter, rotatingMetric.displayLabel, false);
+            showNumber(activeValueCounter, activeMetricValue, false);
+            showNumber(followerCounter, followerValue, false);
+            showLabel(followerLabelCounter, followerMetricLabel, false);
+            return 0;
+        }
 
-        return labelFinishedAt;
+        changeLogo(display, platform.logo, platformChanged);
+
+        const numberFinishedAt = showNumber(activeValueCounter, activeMetricValue, true, blankPauseMs);
+        const labelFinishedAt = showLabel(labelCounter, rotatingMetric.displayLabel, true, labelFlipStartMs);
+        const followerFinishedAt = showNumber(followerCounter, followerValue, platformChanged, blankPauseMs);
+        const followerLabelFinishedAt = showLabel(
+            followerLabelCounter,
+            followerMetricLabel,
+            platformChanged,
+            labelFlipStartMs,
+            platformChanged
+        );
+
+        return Math.max(numberFinishedAt, labelFinishedAt, followerFinishedAt, followerLabelFinishedAt);
     }
 
     function rotatePlatform() {
-        currentMetricIndex = (currentMetricIndex + 1) % platforms[currentPlatformIndex].metrics.length;
-
-        if (currentMetricIndex === 0) {
-            currentPlatformIndex = (currentPlatformIndex + 1) % platforms.length;
+        if (activePlatforms.length === 0 || activeTopRowMetrics.length === 0) {
+            return;
         }
 
-        const animationDuration = renderPlatform(true);
+        let platformChanged = false;
+
+        if (currentRotatingMetricIndex === activeTopRowMetrics.length - 1) {
+            currentRotatingMetricIndex = 0;
+            currentPlatformIndex = (currentPlatformIndex + 1) % activePlatforms.length;
+            platformChanged = true;
+        } else {
+            currentRotatingMetricIndex += 1;
+        }
+
+        const animationDuration = renderPlatform({ animate: true, platformChanged });
         scheduleNextRotation(animationDuration + resultHoldMs);
     }
 
@@ -528,9 +2547,30 @@
         }, delayMs);
     }
 
-    buildDisplay();
-    renderPlatform(false);
-    scheduleNextRotation(resultHoldMs + 1500);
+    async function initDashboard() {
+        buildChooser();
+        await refreshInstagramConnection({ includeStats: true, silent: true });
+        await refreshTikTokConnection({ includeStats: true, silent: true });
+        await refreshYouTubeConnection({ includeStats: true, silent: true });
+        await loadMyBoard();
+    }
+
+    async function initPublicBoard() {
+        document.getElementById("chooser").hidden = true;
+        await refreshPublicBoard();
+        syncPublicBoardRefreshLoop();
+    }
+
+    async function initApp() {
+        if (isPublicBoardMode) {
+            await initPublicBoard();
+            return;
+        }
+
+        await initDashboard();
+    }
+
+    initApp();
 </script>
 </body>
 </html>
