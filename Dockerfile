@@ -4,7 +4,7 @@ WORKDIR /src
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOFLAGS=-mod=vendor go build -trimpath -ldflags="-s -w" -o /out/vintage-social-counter .
+RUN CGO_ENABLED=0 GOOS=linux GOMAXPROCS=1 GOFLAGS='-mod=vendor -p=1' go build -trimpath -ldflags="-s -w" -o /out/vintage-social-counter .
 
 
 FROM alpine:3.21
